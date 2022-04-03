@@ -1,0 +1,7 @@
+## Interface: 90200
+## Title: SmartInventoryManagementSystem
+## Notes: Manage items more efficiently
+## Author: JamesDeciutiis
+## Version: 0.0.1
+
+SmartInventoryManagementSystem.lua
