@@ -1,9 +1,10 @@
 SLASH_SIMS1 = "/sims"
 
 local data = ""
-function KethoEditBox_Show()
-	if not KethoEditBox then
-		local f = CreateFrame("Frame", "KethoEditBox", UIParent, "BasicFrameTemplateWithInset")
+
+function MainFrame_Show()
+	if not MainFrame then
+		local f = CreateFrame("Frame", "MainFrame", UIParent, "BasicFrameTemplateWithInset")
 		f:SetPoint("CENTER")
 		f:SetSize(600, 500)
 		f:SetMovable(true)
@@ -14,67 +15,31 @@ function KethoEditBox_Show()
 				end
 		end)
 		f:SetScript("OnMouseUp", f.StopMovingOrSizing)
-		---KethoEditBoxButton:HookScript("OnClick", function(self)
-		---	for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do 
-		---		for slot = 1, GetContainerNumSlots(currentBag) do
-		---			local itemLink = GetContainerItemLink(currentBag, slot)
-		---			if(itemLink) then
-		---				print(GetItemInfo(itemLink))
-		---			end
-		---		end
-		---	end
-		---end)
-		
-		-- ScrollFrame
-		local sf = CreateFrame("ScrollFrame", "KethoEditBoxScrollFrame", KethoEditBox, "UIPanelScrollFrameTemplate")
-		sf:SetPoint("LEFT", 16, 0)
-		sf:SetPoint("RIGHT", -32, 0)
-		sf:SetPoint("TOP", 0, -16)
-		sf:SetPoint("BOTTOM", KethoEditBoxButton, "TOP", 0, 0)
-		
-		-- EditBox
-		local eb = CreateFrame("EditBox", "KethoEditBoxEditBox", KethoEditBoxScrollFrame)
-		eb:SetSize(sf:GetSize())
-		eb:SetMultiLine(true)
-		eb:SetAutoFocus(true) -- dont automatically focus
-		eb:SetFontObject("ChatFontNormal")
-		eb:SetScript("OnEscapePressed", function() f:Hide() end)
-		sf:SetScrollChild(eb)
-		
-		-- Resizable
-		f:SetResizable(true)
-		f:SetMinResize(150, 100)
-		
-		local rb = CreateFrame("Button", "KethoEditBoxResizeButton", KethoEditBox)
-		rb:SetPoint("BOTTOMRIGHT", -6, 7)
-		rb:SetSize(16, 16)
-		
-		rb:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-		rb:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
-		rb:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
-		
-		rb:SetScript("OnMouseDown", function(self, button)
-				if button == "LeftButton" then
-						f:StartSizing("BOTTOMRIGHT")
-						self:GetHighlightTexture():Hide() -- more noticeable
-				end
-		end)
-		rb:SetScript("OnMouseUp", function(self, button)
-				f:StopMovingOrSizing()
-				self:GetHighlightTexture():Show()
-				eb:SetWidth(sf:GetWidth())
-		end)
+    local button = CreateFrame("Button", "AcceptButton", MainFrame, "GameMenuButtonTemplate")
+    button:SetPoint("BOTTOM", 0, 10)
+    button:SetText("Okay")
+    button:SetScript("OnClick", function(self)
+      for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do 
+        for slot = 1, GetContainerNumSlots(currentBag) do
+          local itemLink = GetContainerItemLink(currentBag, slot)
+          if(itemLink) then
+            print(GetItemInfo(itemLink))
+          end
+        end
+      end
+    end)
 		f:Show()
 	end
  	if text then
-			KethoEditBoxEditBox:SetText(text)
+			MainFrameEditBox:SetText(text)
 	end
-	KethoEditBox:Show()
+
+	MainFrame:Show()
 end
 
 local function SimsHandler()
-	print("YEEER")
-	KethoEditBox_Show()
+	MainFrame_Show()
+  return
 end
 
 SlashCmdList["SIMS"] = SimsHandler;
