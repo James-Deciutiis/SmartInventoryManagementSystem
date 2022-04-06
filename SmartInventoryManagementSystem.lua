@@ -1,10 +1,32 @@
 SLASH_SIMS1 = "/sims"
 
-local data = ""
+local iLvlFlag = false
+
+function CreateCheckButton(name, parent, text, position, x, y, flag)
+  local CheckButton = CreateFrame("CheckButton", name, parent, "ChatConfigCheckButtonTemplate")
+  CheckButton:SetPoint(position, x, y)
+  getglobal(CheckButton:GetName() .. "Text"):SetText(text)
+  CheckButton:SetScript("OnClick", function()
+    flag = not flag
+  end)
+  return CheckButton
+end
+
+function CreateEditBox(name, parent, position, x, y)
+  local editBox = CreateFrame("EditBox", name, MainFrame)
+  editBox:SetPoint(position, x, y)
+  editBox:SetFontObject("ChatFontNormal")
+  editBox:SetMultiLine(true)
+  editBox:SetSize(100, 100)
+  editBox:SetAutoFocus(true)
+  editBox:SetScript("OnEscapePressed", function() parent:Hide() end)
+  return editBox
+end
+
 
 function MainFrame_Show()
 	if not MainFrame then
-		local f = CreateFrame("Frame", "MainFrame", UIParent, "BasicFrameTemplateWithInset")
+    local f = CreateFrame("Frame", "MainFrame", UIParent, "BasicFrameTemplateWithInset")
 		f:SetPoint("CENTER")
 		f:SetSize(600, 500)
 		f:SetMovable(true)
@@ -20,13 +42,9 @@ function MainFrame_Show()
     f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
     f.title:SetText("S.I.M.S")
 
-    local editBox = CreateFrame("EditBox", "MainEditBox", MainFrame)
-    editBox:SetPoint("CENTER")
-    editBox:SetFontObject("ChatFontNormal")
-    editBox:SetMultiLine(true)
-    editBox:SetSize(200, 100)
-    editBox:SetAutoFocus(true)
-    editBox:SetScript("OnEscapePressed", function() f:Hide() end)
+    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "CENTER", -110, 0, iLvlFlag)
+    local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "CENTER", 30, 0)
+    
 
     local button = CreateFrame("Button", "AcceptButton", MainFrame, "GameMenuButtonTemplate")
     button:SetPoint("BOTTOM", 0, 10)
