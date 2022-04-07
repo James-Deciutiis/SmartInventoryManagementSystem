@@ -4,6 +4,8 @@ flags = { }
 flags["Item Level"] = false
 flags["Equipment"] = false
 
+filteredItems = { }
+
 function CreateCheckButton(name, parent, text, position, x, y)
   local CheckButton = CreateFrame("CheckButton", name, parent, "ChatConfigCheckButtonTemplate")
   CheckButton:SetPoint(position, x, y)
@@ -25,6 +27,25 @@ function CreateEditBox(name, parent, position, x, y)
   return editBox
 end
 
+function filter(itemLink, query)
+  itemName, itemL, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
+  if(flags["Item Level"] and itemLevel) then
+    if(tonumber(query) == itemLevel) then
+      print(itemLink)
+    end
+  end
+end
+
+function ParseBags(queries)
+  for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+    for slot = 1, GetContainerNumSlots(currentBag) do
+      local itemLink = GetContainerItemLink(currentBag, slot)
+      if(itemLink) then
+        filter(itemLink, queries)
+      end
+    end
+  end
+end
 
 function MainFrame_Show()
 	if not MainFrame then
@@ -46,30 +67,17 @@ function MainFrame_Show()
 
     local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "TOP", -75, -40)
     local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -43)
+    local query = iLvlEditBox:GetText()
     
-    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -75, 50)
-    local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -53)
+    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -75, -60)
+    local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -63)
 
     local button = CreateFrame("Button", "AcceptButton", MainFrame, "GameMenuButtonTemplate")
     button:SetPoint("BOTTOM", 0, 10)
     button:SetText("Okay")
     button:SetScript("OnClick", function(self)
-      local query = iLvlEditBox:GetText()
-      for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-        for slot = 1, GetContainerNumSlots(currentBag) do
-          local itemLink = GetContainerItemLink(currentBag, slot)
-          if(itemLink) then
-            itemName, itemL, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
-            if(flags["Item Level"] and itemLevel) then
-              if(tonumber(query) == itemLevel) then
-                print(itemLink)
-              end
-            end
-          end
-        end
-      end
+      ParseBags(iLvlEditBox:GetText())
     end)
-    
 		f:Show()
 	end
  	if text then
