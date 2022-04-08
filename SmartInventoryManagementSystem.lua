@@ -17,13 +17,15 @@ function CreateCheckButton(name, parent, text, position, x, y)
 end
 
 function CreateEditBox(name, parent, position, x, y)
-  local editBox = CreateFrame("EditBox", name, MainFrame)
+  local editBox = CreateFrame("EditBox", name, MainFrame, BackdropTemplateMixin and "BackdropTemplate")
   editBox:SetPoint(position, x, y)
   editBox:SetFontObject("ChatFontNormal")
-  editBox:SetMultiLine(true)
-  editBox:SetSize(100, 100)
-  editBox:SetAutoFocus(true)
+  editBox:SetMultiLine(false)
+  editBox:SetSize(155, 40)
+  editBox:SetAutoFocus(false)
+  editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
   editBox:SetScript("OnEscapePressed", function() parent:Hide() end)
+
   return editBox
 end
 
@@ -51,7 +53,7 @@ function MainFrame_Show()
 	if not MainFrame then
     local f = CreateFrame("Frame", "MainFrame", UIParent, "BasicFrameTemplateWithInset")
 		f:SetPoint("CENTER")
-		f:SetSize(300, 500)
+		f:SetSize(400, 500)
 		f:SetMovable(true)
 		f:SetClampedToScreen(true)
 		f:SetScript("OnMouseDown", function(self, button)
@@ -65,12 +67,12 @@ function MainFrame_Show()
     f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
     f.title:SetText("S.I.M.S")
 
-    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "TOP", -75, -40)
-    local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -43)
+    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "TOP", -150, -40)
+    local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -35)
     local query = iLvlEditBox:GetText()
     
-    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -75, -60)
-    local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -63)
+    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -150, -80)
+    local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -75)
 
     local button = CreateFrame("Button", "AcceptButton", MainFrame, "GameMenuButtonTemplate")
     button:SetPoint("BOTTOM", 0, 10)
@@ -81,7 +83,7 @@ function MainFrame_Show()
 		f:Show()
 	end
  	if text then
-			MainFrameEditBox:SetText(text)
+    MainFrameEditBox:SetText(text)
 	end
 
 	MainFrame:Show()
