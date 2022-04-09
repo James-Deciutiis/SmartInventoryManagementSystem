@@ -24,7 +24,9 @@ function CreateEditBox(name, parent, position, x, y)
   editBox:SetSize(155, 40)
   editBox:SetAutoFocus(false)
   editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
+  editBox:SetTextInsets(15, 12, 12, 11)
   editBox:SetScript("OnEscapePressed", function() parent:Hide() end)
+  editBox:Hide()
 
   return editBox
 end
@@ -32,8 +34,8 @@ end
 function filter(itemLink, query)
   itemName, itemL, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
   if(flags["Item Level"] and itemLevel) then
-    if(tonumber(query) == itemLevel) then
-      print(itemLink)
+    if(tonumber(ItemLevelEditBox:GetText()) == itemLevel) then
+      table.insert(filteredItems, itemLink)
     end
   end
 end
@@ -43,9 +45,14 @@ function ParseBags(queries)
     for slot = 1, GetContainerNumSlots(currentBag) do
       local itemLink = GetContainerItemLink(currentBag, slot)
       if(itemLink) then
+        print(GetItemInfo(itemLink))
         filter(itemLink, queries)
       end
     end
+  end
+  
+  for key, value in pairs(filteredItems) do
+    print(value)
   end
 end
 
@@ -67,12 +74,14 @@ function MainFrame_Show()
     f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
     f.title:SetText("S.I.M.S")
 
-    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "TOP", -150, -40)
-    local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -35)
-    local query = iLvlEditBox:GetText()
+    local itemNameButton = CreateCheckButton("ItemNameCheckBox", MainFrame, "ItemName", "TOP", -150, -40)
+    local itemNameEditBox = CreateEditBox("ItemNameEditBox", MainFrame, "TOP", 65, -35)
     
-    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -150, -80)
-    local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -75)
+    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "TOP", -150, -80)
+    local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -75)
+    
+    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -150, -120)
+    local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -115)
 
     local button = CreateFrame("Button", "AcceptButton", MainFrame, "GameMenuButtonTemplate")
     button:SetPoint("BOTTOM", 0, 10)
