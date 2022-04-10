@@ -5,13 +5,18 @@ flags["Item Level"] = false
 flags["Equipment"] = false
 
 filteredItems = { }
-
-function CreateCheckButton(name, parent, text, position, x, y)
+  
+function CreateCheckButton(name, parent, box, text, position, x, y)
   local CheckButton = CreateFrame("CheckButton", name, parent, "ChatConfigCheckButtonTemplate")
   CheckButton:SetPoint(position, x, y)
   getglobal(CheckButton:GetName() .. "Text"):SetText(text)
   CheckButton:SetScript("OnClick", function()
     flags[text] = not flags[text]
+    if (flags[text]) then
+      box:Show()
+    else
+      box:Hide()
+    end
   end)
   return CheckButton
 end
@@ -25,33 +30,46 @@ function CreateEditBox(name, parent, position, x, y)
   editBox:SetAutoFocus(false)
   editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
   editBox:SetTextInsets(15, 12, 12, 11)
-  editBox:SetScript("OnEscapePressed", function() parent:Hide() end)
+  editBox:SetScript("OnEscapePressed", function() editBox:ClearFocus() end)
   editBox:Hide()
 
   return editBox
 end
 
-function filter(itemLink, query)
+function filter(itemLink)
   itemName, itemL, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent = GetItemInfo(itemLink)
-  if(flags["Item Level"] and itemLevel) then
-    if(tonumber(ItemLevelEditBox:GetText()) == itemLevel) then
-      table.insert(filteredItems, itemLink)
+  local isHit = true
+  if(flags["Item Level"] and isHit) then
+    if(tonumber(ItemLevelEditBox:GetText()) ~= itemLevel) then
+      isHit = false
     end
+  end
+  if(flags["Equipment"] and isHit) then
+    if(EquipmentEditBox:GetText() ~= itemType) then
+      isHit = false
+    end
+  end
+  if(isHit) then
+    table.insert(filteredItems, itemLink)
   end
 end
 
 function ParseBags(queries)
+  local inventory = { }
   for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
     for slot = 1, GetContainerNumSlots(currentBag) do
       local itemLink = GetContainerItemLink(currentBag, slot)
       if(itemLink) then
-        print(GetItemInfo(itemLink))
-        filter(itemLink, queries)
+        filter(itemLink)
+        table.insert(inventory, itemLink)
       end
     end
   end
-  
-  for key, value in pairs(filteredItems) do
+
+  for key, value in ipairs(inventory) do
+  end
+
+  for key, value in ipairs(filteredItems) do
     print(value)
   end
 end
@@ -74,14 +92,14 @@ function MainFrame_Show()
     f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
     f.title:SetText("S.I.M.S")
 
-    local itemNameButton = CreateCheckButton("ItemNameCheckBox", MainFrame, "ItemName", "TOP", -150, -40)
     local itemNameEditBox = CreateEditBox("ItemNameEditBox", MainFrame, "TOP", 65, -35)
+    local itemNameButton = CreateCheckButton("ItemNameCheckBox", MainFrame, itemNameEditBox, "ItemName", "TOP", -150, -40)
     
-    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, "Item Level", "TOP", -150, -80)
     local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -75)
+    local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, iLvlEditBox, "Item Level", "TOP", -150, -80)
     
-    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, "Equipment", "TOP", -150, -120)
     local equipmentEditBox = CreateEditBox("EquipmentEditBox", MainFrame, "TOP", 65, -115)
+    local equipmentButton = CreateCheckButton("EquipmentCheckBox", MainFrame, equipmentEditBox, "Equipment", "TOP", -150, -120)
 
     local button = CreateFrame("Button", "AcceptButton", MainFrame, "GameMenuButtonTemplate")
     button:SetPoint("BOTTOM", 0, 10)
