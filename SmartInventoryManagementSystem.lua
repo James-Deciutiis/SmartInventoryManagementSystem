@@ -3,6 +3,7 @@ SLASH_SIMS1 = "/sims"
 flags = { }
 flags["Item Level"] = false
 flags["Equipment"] = false
+flags["Item Name"] = false
 
 function CreateStandardFrame(name, text)
     local f = CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
@@ -132,6 +133,11 @@ function filter(itemLink, filteredItems)
   if(sellPrice == nil or sellPrice == 0) then
     return 0
   end
+  if(flags["Item Name"] and isHit) then
+    if(not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
+      isHit = false
+    end
+  end
   if(flags["Item Level"] and isHit) then
     if(tonumber(ItemLevelEditBox:GetText()) ~= itemLevel) then
       isHit = false
@@ -170,7 +176,7 @@ function MainFrame_Show()
     local f = CreateStandardFrame("MainFrame", "S.I.M.S")
 
     local itemNameEditBox = CreateEditBox("ItemNameEditBox", MainFrame, "TOP", 65, -35)
-    local itemNameButton = CreateCheckButton("ItemNameCheckBox", MainFrame, itemNameEditBox, "ItemName", "TOP", -150, -40)
+    local itemNameButton = CreateCheckButton("ItemNameCheckBox", MainFrame, itemNameEditBox, "Item Name", "TOP", -150, -40)
     
     local iLvlEditBox = CreateEditBox("ItemLevelEditBox", MainFrame, "TOP", 65, -75)
     local iLvlButton = CreateCheckButton("ItemLevelCheckBox", MainFrame, iLvlEditBox, "Item Level", "TOP", -150, -80)
