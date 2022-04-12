@@ -4,9 +4,11 @@ flags = {}
 flags["Item Level"] = false
 flags["Equipment"] = false
 flags["Item Name"] = false
+flags["Soulbound"] = false
 
 dropDownValues = {}
 dropDownValues["Equipment"] = nil
+dropDownValues["Soulbound"] = nil
 
 function CreateStandardCheckButton(name, parent, box, text, position, x, y)
     local CheckButton = CreateFrame("CheckButton", name, parent,
@@ -176,7 +178,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
 
     getglobal("ConfirmationMessageFrame"):Clear()
     for key, value in ipairs(itemLinks) do
-        getglobal("ConfirmationMessageFrame"):AddMessage(value, 1, 0, 0)
+        getglobal("ConfirmationMessageFrame"):AddMessage(value)
     end
 
     getglobal("TotalSellPriceMessageFrame"):Clear()
@@ -190,6 +192,8 @@ end
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     itemName, itemL, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
+    icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
+        GetContainerItemInfo(currentBag, slot)
     local isHit = true
     if (sellPrice == nil or sellPrice == 0) then return 0 end
     if (flags["Item Name"] and isHit) then
@@ -204,6 +208,13 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     end
     if (flags["Equipment"] and isHit) then
         if (dropDownValues["Equipment"] ~= itemType) then isHit = false end
+    end
+    if (flags["Soulbound"] and isHit) then
+        if (dropDownValues["Soulbound"] == "Not Soulbound" and isBound ~= false) then
+            isHit = false
+        elseif (dropDownValues["Soulbound"] == "Soulbound" and isBound ~= true) then
+            isHit = false
+        end
     end
     if (isHit) then
         local coords = {}
@@ -267,6 +278,18 @@ function MainFrame_Show()
                                                           equipmentDropDown,
                                                           "Equipment", "TOP",
                                                           -150, -120)
+
+        local soulBoundDropDownMenuItems = {"Soulbound", "Not Soulbound"}
+        local soulBoundDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
+                                                         -157, 145,
+                                                         "Is Soulbound",
+                                                         soulBoundDropDownMenuItems,
+                                                         "Soulbound")
+        local soulBoundButton = CreateStandardCheckButton("SoulBoundCheckBox",
+                                                          MainFrame,
+                                                          soulBoundDropDown,
+                                                          "Soulbound", "TOP",
+                                                          -150, -160)
 
         local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM",
                                             0, 10, nil, nil, nil)
