@@ -123,6 +123,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
         MessageFrame:SetHyperlinksEnabled(true)
         MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
+        MessageFrame:HookScript('OnHyperlinkEnter', ChatFrame_OnHyperlinkShow)
 
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
@@ -190,7 +191,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
 end
 
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
-    itemName, itemL, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
+    itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
@@ -292,7 +293,7 @@ function MainFrame_Show()
                                                           -150, -160)
 
         local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM",
-                                            0, 10, nil, nil, nil)
+                                            0, 15, nil, nil, nil)
         button:SetScript("OnClick", function(self)
             ParseBags()
             f:Hide()
