@@ -174,6 +174,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         end
 
         ConfirmationFrame:Hide()
+        MainFrame_Show()
     end)
     getglobal("SellButton"):SetEnabled(MerchantFrame:IsVisible())
 
