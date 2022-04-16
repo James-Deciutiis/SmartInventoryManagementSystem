@@ -5,10 +5,23 @@ flags["Item Level"] = false
 flags["Equipment"] = false
 flags["Item Name"] = false
 flags["Soulbound"] = false
+flags["Expansion"] = false
 
 dropDownValues = {}
 dropDownValues["Equipment"] = nil
 dropDownValues["Soulbound"] = nil
+dropDownValues["Expansion"] = nil
+
+expansionValueMapping = {}
+expansionValueMapping["Classic"] = 0;
+expansionValueMapping["Burning Crusade"] = 1
+expansionValueMapping["Wrath of the Lich King"] = 2
+expansionValueMapping["Cataclysm"] = 3
+expansionValueMapping["Mists of Pandaria"] = 4
+expansionValueMapping["Warlords of Draenor"] = 5
+expansionValueMapping["Legion"] = 6
+expansionValueMapping["Battle for Azeroth"] = 7
+expansionValueMapping["Shadowlands"] = 8
 
 function CreateStandardCheckButton(name, parent, box, text, position, x, y)
     local CheckButton = CreateFrame("CheckButton", name, parent,
@@ -111,19 +124,54 @@ end
 function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     if not ConfirmationFrame then
         local f = CreateStandardFrame("ConfirmationFrame", "Confirm")
+        f:EnableMouse(true)
+        f:EnableMouseWheel(true)
 
         local MessageFrame = CreateFrame("ScrollingMessageFrame",
                                          "ConfirmationMessageFrame", f)
-        MessageFrame:SetSize(200, 200)
-        MessageFrame:SetPoint("CENTER")
+        MessageFrame:SetSize(350, 350)
+        MessageFrame:SetPoint("CENTER", 0, 20)
         MessageFrame:SetFontObject(GameFontNormal)
-        MessageFrame:SetJustifyH("LEFT")
+        MessageFrame:SetJustifyH("CENTER")
         MessageFrame:SetFading(false)
         MessageFrame:SetMaxLines(100)
-        MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
+        MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_BOTTOM)
         MessageFrame:SetHyperlinksEnabled(true)
         MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
         MessageFrame:HookScript('OnHyperlinkEnter', ChatFrame_OnHyperlinkShow)
+        MessageFrame:HookScript('OnHyperlinkLeave',
+                                function() GameTooltip:Hide() end)
+
+        local scrollBar = CreateFrame("Slider", nil, f,
+                                      "UIPanelScrollBarTemplate")
+        scrollBar:SetPoint("RIGHT", f, "RIGHT", -10, 10)
+        scrollBar:SetSize(30, 350)
+        scrollBar:SetMinMaxValues(28, table.getn(itemLinks))
+        scrollBar:SetValueStep(-1)
+        MessageFrame.scrollBar = scrollBar
+        MessageFrame:EnableMouseWheel(true)
+        scrollBar:SetScript("OnValueChanged", function(self, value)
+            print(value)
+            MessageFrame:SetScrollOffset(
+                select(2, scrollBar:GetMinMaxValues()) - math.floor(value))
+        end)
+
+        scrollBar:SetValue(select(2, scrollBar:GetMinMaxValues()))
+
+        MessageFrame:SetScript("OnMouseWheel", function(self, delta)
+            print("anything")
+
+            local cur_val = scrollBar:GetValue()
+            local min_val, max_val = scrollBar:GetMinMaxValues()
+
+            if delta < 0 and cur_val < max_val then
+                cur_val = math.min(max_val, cur_val + 1)
+                scrollBar:SetValue(cur_val)
+            elseif delta > 0 and cur_val > min_val then
+                cur_val = math.max(min_val, cur_val - 1)
+                scrollBar:SetValue(cur_val)
+            end
+        end)
 
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
@@ -191,6 +239,14 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     ConfirmationFrame:Show()
 end
 
+function scanBags()
+    for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+        for slot = 1, GetContainerNumSlots(currentBag) do
+            local itemLink = GetContainerItemLink(currentBag, slot)
+        end
+    end
+end
+
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
@@ -215,6 +271,11 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         if (dropDownValues["Soulbound"] == "Not Soulbound" and isBound ~= false) then
             isHit = false
         elseif (dropDownValues["Soulbound"] == "Soulbound" and isBound ~= true) then
+            isHit = false
+        end
+    end
+    if (flags["Expansion"] and isHit) then
+        if (expansionValueMapping[dropDownValues["Expansion"]] ~= expacID) then
             isHit = false
         end
     end
@@ -293,6 +354,21 @@ function MainFrame_Show()
                                                           "Soulbound", "TOP",
                                                           -150, -160)
 
+        local expansionDropDownMenuItems = {
+            "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm",
+            "Mists of Pandaria", "Warlords of Draenor", "Legion",
+            "Battle for Azeroth", "Shadowlands"
+        }
+        local expansionDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
+                                                         -197, 146, "Expansion",
+                                                         expansionDropDownMenuItems,
+                                                         "Expansion")
+        local expansionButton = CreateStandardCheckButton("ExpansionCheckBox",
+                                                          MainFrame,
+                                                          expansionDropDown,
+                                                          "Expansion", "TOP",
+                                                          -150, -200)
+
         local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM",
                                             0, 15, nil, nil, nil)
         button:SetScript("OnClick", function(self)
@@ -307,6 +383,9 @@ function MainFrame_Show()
     MainFrame:Show()
 end
 
-local function SimsHandler() MainFrame_Show() end
+local function SimsHandler()
+    scanBags()
+    MainFrame_Show()
+end
 
 SlashCmdList["SIMS"] = SimsHandler;
