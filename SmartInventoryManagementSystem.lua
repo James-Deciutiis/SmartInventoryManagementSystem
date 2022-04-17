@@ -131,47 +131,22 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
                                          "ConfirmationMessageFrame", f)
         MessageFrame:SetSize(350, 350)
         MessageFrame:SetPoint("CENTER", 0, 20)
-        MessageFrame:SetFontObject(GameFontNormal)
         MessageFrame:SetJustifyH("CENTER")
         MessageFrame:SetFading(false)
-        MessageFrame:SetMaxLines(100)
-        MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_BOTTOM)
+        MessageFrame:EnableMouseWheel(true)
         MessageFrame:SetHyperlinksEnabled(true)
+        MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
+        MessageFrame:SetFontObject(GameFontNormal)
         MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
         MessageFrame:HookScript('OnHyperlinkEnter', ChatFrame_OnHyperlinkShow)
         MessageFrame:HookScript('OnHyperlinkLeave',
                                 function() GameTooltip:Hide() end)
 
-        local scrollBar = CreateFrame("Slider", nil, f,
+        local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
                                       "UIPanelScrollBarTemplate")
         scrollBar:SetPoint("RIGHT", f, "RIGHT", -10, 10)
         scrollBar:SetSize(30, 350)
-        scrollBar:SetMinMaxValues(28, table.getn(itemLinks))
-        scrollBar:SetValueStep(-1)
-        MessageFrame.scrollBar = scrollBar
-        MessageFrame:EnableMouseWheel(true)
-        scrollBar:SetScript("OnValueChanged", function(self, value)
-            print(value)
-            MessageFrame:SetScrollOffset(
-                select(2, scrollBar:GetMinMaxValues()) - math.floor(value))
-        end)
-
-        scrollBar:SetValue(select(2, scrollBar:GetMinMaxValues()))
-
-        MessageFrame:SetScript("OnMouseWheel", function(self, delta)
-            print("anything")
-
-            local cur_val = scrollBar:GetValue()
-            local min_val, max_val = scrollBar:GetMinMaxValues()
-
-            if delta < 0 and cur_val < max_val then
-                cur_val = math.min(max_val, cur_val + 1)
-                scrollBar:SetValue(cur_val)
-            elseif delta > 0 and cur_val > min_val then
-                cur_val = math.max(min_val, cur_val - 1)
-                scrollBar:SetValue(cur_val)
-            end
-        end)
+        f.scrollBar = scrollBar
 
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
@@ -224,6 +199,44 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         ConfirmationFrame:Hide()
         MainFrame_Show()
     end)
+
+    getglobal("SellButton"):SetEnabled(MerchantFrame:IsVisible())
+    getglobal("ConfirmationMessageFrame"):Clear()
+
+    local length = 0
+    for key, value in ipairs(itemLinks) do
+        getglobal("ConfirmationMessageFrame"):AddMessage(value)
+        length = length + 1
+    end
+
+    getget("ConfirmationMessageFrame"):SetMaxLines(20)
+
+    ConfirmationFrame.scrollBar:SetMinMaxValues(0, 10)
+    ConfirmationFrame.scrollBar:SetValue(select(2,
+                                                ConfirmationFrame.scrollBar:GetMinMaxValues()))
+    getglobal("ConfirmationMessageFrame"):SetScript("OnMouseWheel",
+                                                    function(self, delta)
+        self:ScrollByAmount(-delta * 3)
+        print(self:GetScrollOffset())
+    end)
+
+    getglobal("TotalSellPriceMessageFrame"):Clear()
+    getglobal("TotalSellPriceMessageFrame"):AddMessage("Total Sell Price")
+    getglobal("TotalSellPriceMessageFrame"):AddMessage(
+        GetCoinTextureString(totalSellPrice))
+
+    ConfirmationFrame:Show()
+end
+
+function updateConfirmationFrame()
+    getglobal("SellButton"):SetScript("OnClick", function(self)
+        for key, value in ipairs(itemCoords) do
+            UseContainerItem(value.bag, value.slot)
+        end
+
+        ConfirmationFrame:Hide()
+        MainFrame_Show()
+    end)
     getglobal("SellButton"):SetEnabled(MerchantFrame:IsVisible())
 
     getglobal("ConfirmationMessageFrame"):Clear()
@@ -235,8 +248,6 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     getglobal("TotalSellPriceMessageFrame"):AddMessage("Total Sell Price")
     getglobal("TotalSellPriceMessageFrame"):AddMessage(
         GetCoinTextureString(totalSellPrice))
-
-    ConfirmationFrame:Show()
 end
 
 function scanBags()
