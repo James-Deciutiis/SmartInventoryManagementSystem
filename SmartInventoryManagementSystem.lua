@@ -209,8 +209,6 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         length = length + 1
     end
 
-    getget("ConfirmationMessageFrame"):SetMaxLines(20)
-
     ConfirmationFrame.scrollBar:SetMinMaxValues(0, 10)
     ConfirmationFrame.scrollBar:SetValue(select(2,
                                                 ConfirmationFrame.scrollBar:GetMinMaxValues()))
