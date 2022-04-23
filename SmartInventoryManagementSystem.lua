@@ -267,6 +267,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         GetItemInfo(itemLink)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
+    print(itemQuality)
     local isHit = true
     if (sellPrice == nil or sellPrice == 0) then return 0 end
     if (flags["Item Name"] and isHit) then
@@ -293,6 +294,9 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         if (expansionValueMapping[dropDownValues["Expansion"]] ~= expacID) then
             isHit = false
         end
+    end
+    if (flags["Quality"] and isHit) then
+        if (dropDownValues["Quality"] ~= itemQuality) then isHit = false end
     end
     if (isHit) then
         local coords = {}
@@ -375,7 +379,7 @@ function MainFrame_Show()
             "Battle for Azeroth", "Shadowlands"
         }
         local expansionDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
-                                                         -197, 146, "Expansion",
+                                                         -197, 145, "Expansion",
                                                          expansionDropDownMenuItems,
                                                          "Expansion")
         local expansionButton = CreateStandardCheckButton("ExpansionCheckBox",
@@ -383,6 +387,20 @@ function MainFrame_Show()
                                                           expansionDropDown,
                                                           "Expansion", "TOP",
                                                           -150, -200)
+        local qualityDropDownMenuItems = {
+            ITEM_QUALITY0_DESC, ITEM_QUALITY1_DESC, ITEM_QUALITY2_DESC,
+            ITEM_QUALITY3_DESC, ITEM_QUALITY4_DESC, ITEM_QUALITY5_DESC,
+            ITEM_QUALITY6_DESC, ITEM_QUALITY7_DESC, ITEM_QUALITY8_DESC
+        }
+        local qualityDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
+                                                       -237, 145, "Quality",
+                                                       qualityDropDownMenuItems,
+                                                       "Quality")
+        local qualityButton = CreateStandardCheckButton("QualityCheckBox",
+                                                        MainFrame,
+                                                        qualityDropDown,
+                                                        "Quality", "TOP", -150,
+                                                        -240)
 
         local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM",
                                             0, 15, nil, nil, nil)
