@@ -149,9 +149,13 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
         MessageFrame:SetFontObject(GameFontNormal)
         MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
-        MessageFrame:HookScript('OnHyperlinkEnter', ChatFrame_OnHyperlinkShow)
-        MessageFrame:HookScript('OnHyperlinkLeave', function()
-            MessageFrame:SetHyperlinksEnabled(false)
+        MessageFrame:HookScript('OnHyperlinkEnter', function(self, link, text)
+            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+            GameTooltip:SetHyperlink(link)
+            GameTooltip:Show()
+        end)
+        MessageFrame:HookScript('OnHyperlinkLeave', function(self, link, text)
+            GameTooltip:Hide()
         end)
 
         local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
@@ -159,6 +163,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         scrollBar:SetPoint("RIGHT", f, "RIGHT", -10, 10)
         scrollBar:SetSize(30, 350)
         f.scrollBar = scrollBar
+        f.MessageFrame = MessageFrame
 
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
@@ -217,11 +222,11 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     local length = 0
     for key, value in ipairs(itemLinks) do length = length + 1 end
 
-    getglobal("ConfirmationMessageFrame"):Clear()
-    getglobal("ConfirmationMessageFrame"):SetMaxLines(length)
+    ConfirmationFrame.MessageFrame:Clear()
+    ConfirmationFrame.MessageFrame:SetMaxLines(length)
 
     for key, value in ipairs(itemLinks) do
-        getglobal("ConfirmationMessageFrame"):AddMessage(value)
+        ConfirmationFrame.MessageFrame:AddMessage(value)
     end
 
     local visualMax = length < 29 and 0 or length - 29
@@ -233,8 +238,8 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
 
     ConfirmationFrame.scrollBar:SetMinMaxValues(0, visualMax)
     ConfirmationFrame.scrollBar:SetValue(0)
-    getglobal("ConfirmationMessageFrame"):SetScript("OnMouseWheel",
-                                                    function(self, delta)
+    ConfirmationFrame.MessageFrame:SetScript("OnMouseWheel",
+                                             function(self, delta)
         if ((delta < 0 and self:GetScrollOffset() < length - 29) or delta > 0) then
             self:ScrollByAmount(-delta * 3)
             ConfirmationFrame.scrollBar:SetValue(self:GetScrollOffset())
