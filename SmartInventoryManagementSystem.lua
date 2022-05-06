@@ -23,6 +23,17 @@ expansionValueMapping["Legion"] = 6
 expansionValueMapping["Battle for Azeroth"] = 7
 expansionValueMapping["Shadowlands"] = 8
 
+qualityValueMapping = {}
+qualityValueMapping["Poor"] = 0
+qualityValueMapping["Common"] = 1
+qualityValueMapping["Uncommon"] = 2
+qualityValueMapping["Rare"] = 3
+qualityValueMapping["Epic"] = 4
+qualityValueMapping["Legendary"] = 5
+qualityValueMapping["Artifact"] = 6
+qualityValueMapping["Heirloom"] = 7
+qualityValueMapping["WoW Token"] = 8
+
 function CreateStandardCheckButton(name, parent, box, text, position, x, y)
     local CheckButton = CreateFrame("CheckButton", name, parent,
                                     "ChatConfigCheckButtonTemplate")
@@ -267,7 +278,6 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         GetItemInfo(itemLink)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
-    print(itemQuality)
     local isHit = true
     if (sellPrice == nil or sellPrice == 0) then return 0 end
     if (flags["Item Name"] and isHit) then
@@ -296,7 +306,9 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         end
     end
     if (flags["Quality"] and isHit) then
-        if (dropDownValues["Quality"] ~= itemQuality) then isHit = false end
+        if (qualityValueMapping[dropDownValues["Quality"]] ~= itemQuality) then
+            isHit = false
+        end
     end
     if (isHit) then
         local coords = {}
