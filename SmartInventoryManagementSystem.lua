@@ -150,8 +150,9 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         MessageFrame:SetFontObject(GameFontNormal)
         MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
         MessageFrame:HookScript('OnHyperlinkEnter', ChatFrame_OnHyperlinkShow)
-        MessageFrame:HookScript('OnHyperlinkLeave',
-                                function() GameTooltip:Hide() end)
+        MessageFrame:HookScript('OnHyperlinkLeave', function()
+            MessageFrame:SetHyperlinksEnabled(false)
+        end)
 
         local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
                                       "UIPanelScrollBarTemplate")
@@ -212,24 +213,31 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     end)
 
     getglobal("SellButton"):SetEnabled(MerchantFrame:IsVisible())
-    getglobal("ConfirmationMessageFrame"):Clear()
-    getglobal("ConfirmationMessageFrame"):SetMaxLines(100)
 
     local length = 0
+    for key, value in ipairs(itemLinks) do length = length + 1 end
+
+    getglobal("ConfirmationMessageFrame"):Clear()
+    getglobal("ConfirmationMessageFrame"):SetMaxLines(length)
+
     for key, value in ipairs(itemLinks) do
         getglobal("ConfirmationMessageFrame"):AddMessage(value)
-        length = length + 1
     end
 
-    ConfirmationFrame.scrollBar:SetMinMaxValues(0, 10)
-    ConfirmationFrame.scrollBar:SetValue(select(2,
-                                                ConfirmationFrame.scrollBar:GetMinMaxValues()))
+    local visualMax = length < 29 and 0 or length - 29
+    if (visualMax == 0) then
+        ConfirmationFrame.scrollBar:Hide()
+    else
+        ConfirmationFrame.scrollBar:Show()
+    end
+
+    ConfirmationFrame.scrollBar:SetMinMaxValues(0, visualMax)
+    ConfirmationFrame.scrollBar:SetValue(0)
     getglobal("ConfirmationMessageFrame"):SetScript("OnMouseWheel",
                                                     function(self, delta)
-        print(length .. " , " .. self:GetScrollOffset())
-        print(delta < 0 and self:GetScrollOffset() < length - 29)
-        if ((delta < 0 and self:GetScrollOffset() < length - 27) or delta > 0) then
+        if ((delta < 0 and self:GetScrollOffset() < length - 29) or delta > 0) then
             self:ScrollByAmount(-delta * 3)
+            ConfirmationFrame.scrollBar:SetValue(self:GetScrollOffset())
         else
             print("end")
         end
