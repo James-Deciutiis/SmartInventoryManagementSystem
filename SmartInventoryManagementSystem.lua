@@ -6,11 +6,15 @@ flags["Equipment"] = false
 flags["Item Name"] = false
 flags["Soulbound"] = false
 flags["Expansion"] = false
+flags["Item Location"] = false
+flags["Item Type"] = false
 
 dropDownValues = {}
 dropDownValues["Equipment"] = nil
 dropDownValues["Soulbound"] = nil
 dropDownValues["Expansion"] = nil
+dropDownValues["Item Location"] = nil
+dropDownValues["Item Type"] = nil
 
 expansionValueMapping = {}
 expansionValueMapping["Classic"] = 0;
@@ -33,6 +37,21 @@ qualityValueMapping["Legendary"] = 5
 qualityValueMapping["Artifact"] = 6
 qualityValueMapping["Heirloom"] = 7
 qualityValueMapping["WoW Token"] = 8
+
+itemTypeValueMapping = {}
+itemTypeValueMapping["Consumable"] = 0
+itemTypeValueMapping["Container"] = 1
+itemTypeValueMapping["Weapon"] = 2
+itemTypeValueMapping["Gem"] = 3
+itemTypeValueMapping["Armor"] = 4
+itemTypeValueMapping["Tradegoods"] = 7
+itemTypeValueMapping["ItemEnhancement"] = 8
+itemTypeValueMapping["Recipe"] = 9
+itemTypeValueMapping["Questitem"] = 12
+itemTypeValueMapping["Miscellaneous"] = 15
+itemTypeValueMapping["Glyph"] = 16
+itemTypeValueMapping["BattlePet"] = 17
+itemTypeValueMapping["WoWToken"] = 18
 
 function CreateStandardCheckButton(name, parent, box, text, position, x, y)
     local CheckButton = CreateFrame("CheckButton", name, parent,
@@ -157,13 +176,13 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         MessageFrame:HookScript('OnHyperlinkLeave', function(self, link, text)
             GameTooltip:Hide()
         end)
+        f.MessageFrame = MessageFrame
 
         local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
                                       "UIPanelScrollBarTemplate")
         scrollBar:SetPoint("RIGHT", f, "RIGHT", -10, 10)
         scrollBar:SetSize(30, 350)
         f.scrollBar = scrollBar
-        f.MessageFrame = MessageFrame
 
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
@@ -173,6 +192,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         total:SetJustifyH("LEFT")
         total:SetFading(false)
         total:SetMaxLines(100)
+        f.TotalFrame = total
 
         local func = function(self) f:Hide() end
 
@@ -194,6 +214,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
                 self:SetEnabled(false)
             end
         end)
+        f.SellButton = sellButton
 
         local destroyButton = CreateStandardButton(ConfirmationFrame, "Destroy",
                                                    "BOTTOMLEFT", 20, 10, 100,
@@ -208,7 +229,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         f:Show()
     end
 
-    getglobal("SellButton"):SetScript("OnClick", function(self)
+    ConfirmationFrame.SellButton:SetScript("OnClick", function(self)
         for key, value in ipairs(itemCoords) do
             UseContainerItem(value.bag, value.slot)
         end
@@ -217,7 +238,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         MainFrame_Show()
     end)
 
-    getglobal("SellButton"):SetEnabled(MerchantFrame:IsVisible())
+    ConfirmationFrame.SellButton:SetEnabled(MerchantFrame:IsVisible())
 
     local length = 0
     for key, value in ipairs(itemLinks) do length = length + 1 end
@@ -229,7 +250,8 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         ConfirmationFrame.MessageFrame:AddMessage(value)
     end
 
-    local visualMax = length < 29 and 0 or length - 29
+    local bottomPadding = 28
+    local visualMax = length < bottomPadding and 0 or length - bottomPadding
     if (visualMax == 0) then
         ConfirmationFrame.scrollBar:Hide()
     else
@@ -240,43 +262,21 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     ConfirmationFrame.scrollBar:SetValue(0)
     ConfirmationFrame.MessageFrame:SetScript("OnMouseWheel",
                                              function(self, delta)
-        if ((delta < 0 and self:GetScrollOffset() < length - 29) or delta > 0) then
+        if ((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
+            delta > 0) then
             self:ScrollByAmount(-delta * 3)
             ConfirmationFrame.scrollBar:SetValue(self:GetScrollOffset())
-        else
-            print("end")
         end
     end)
 
-    getglobal("TotalSellPriceMessageFrame"):Clear()
-    getglobal("TotalSellPriceMessageFrame"):AddMessage("Total Sell Price")
-    getglobal("TotalSellPriceMessageFrame"):AddMessage(
-        GetCoinTextureString(totalSellPrice))
+    ConfirmationFrame.TotalFrame:Clear()
+    ConfirmationFrame.TotalFrame:AddMessage("Total Sell Price")
+    ConfirmationFrame.TotalFrame:AddMessage(GetCoinTextureString(totalSellPrice))
 
     ConfirmationFrame:Show()
 end
 
-function updateConfirmationFrame()
-    getglobal("SellButton"):SetScript("OnClick", function(self)
-        for key, value in ipairs(itemCoords) do
-            UseContainerItem(value.bag, value.slot)
-        end
-
-        ConfirmationFrame:Hide()
-        MainFrame_Show()
-    end)
-    getglobal("SellButton"):SetEnabled(MerchantFrame:IsVisible())
-
-    getglobal("ConfirmationMessageFrame"):Clear()
-    for key, value in ipairs(itemLinks) do
-        getglobal("ConfirmationMessageFrame"):AddMessage(value)
-    end
-
-    getglobal("TotalSellPriceMessageFrame"):Clear()
-    getglobal("TotalSellPriceMessageFrame"):AddMessage("Total Sell Price")
-    getglobal("TotalSellPriceMessageFrame"):AddMessage(
-        GetCoinTextureString(totalSellPrice))
-end
+function updateConfirmationFrame() end
 
 function scanBags()
     for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
@@ -287,10 +287,11 @@ function scanBags()
 end
 
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
-    itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
+    itemName, _, itemQuality, itemLevel, itemMinLevel, itemLocation, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
+    print(itemLocation)
     local isHit = true
     if (sellPrice == nil or sellPrice == 0) then return 0 end
     if (flags["Item Name"] and isHit) then
@@ -304,7 +305,9 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         end
     end
     if (flags["Equipment"] and isHit) then
-        if (dropDownValues["Equipment"] ~= itemType) then isHit = false end
+        if (dropDownValues["Equipment"] ~= itemEquipLoc) then
+            isHit = false
+        end
     end
     if (flags["Soulbound"] and isHit) then
         if (dropDownValues["Soulbound"] == "Not Soulbound" and isBound ~= false) then
@@ -320,6 +323,16 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     end
     if (flags["Quality"] and isHit) then
         if (qualityValueMapping[dropDownValues["Quality"]] ~= itemQuality) then
+            isHit = false
+        end
+    end
+    if (flags["Item Location"] and isHit) then
+        if (dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
+            isHit = false
+        end
+    end
+    if (flags["Item Type"] and isHit) then
+        if (dropDownValues["Item Type"] ~= itemLocation) then
             isHit = false
         end
     end
@@ -389,7 +402,7 @@ function MainFrame_Show()
         local soulBoundDropDownMenuItems = {"Soulbound", "Not Soulbound"}
         local soulBoundDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
                                                          -157, 145,
-                                                         "Is Soulbound",
+                                                         "Binding Type",
                                                          soulBoundDropDownMenuItems,
                                                          "Soulbound")
         local soulBoundButton = CreateStandardCheckButton("SoulBoundCheckBox",
@@ -417,6 +430,7 @@ function MainFrame_Show()
             ITEM_QUALITY3_DESC, ITEM_QUALITY4_DESC, ITEM_QUALITY5_DESC,
             ITEM_QUALITY6_DESC, ITEM_QUALITY7_DESC, ITEM_QUALITY8_DESC
         }
+
         local qualityDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
                                                        -237, 145, "Quality",
                                                        qualityDropDownMenuItems,
@@ -426,6 +440,43 @@ function MainFrame_Show()
                                                         qualityDropDown,
                                                         "Quality", "TOP", -150,
                                                         -240)
+
+        local itemLocationDropDownMenuItems = {
+            INVTYPE_HEAD, INVTYPE_NECK, INVTYPE_SHOULDER, INVTYPE_BODY,
+            INVTYPE_CHEST, INVTYPE_WAIST, INVTYPE_LEGS, INVTYPE_FEET,
+            INVTYPE_WRIST, INVTYPE_HAND, INVTYPE_FINGER, INVTYPE_TRINKET,
+            INVTYPE_WEAPON, INVTYPE_RANGED, INVTYPE_CLOAK, INVTYPE_2HWEAPON,
+            INVTYPE_BAG, INVTYPE_TABARD, INVTYPE_WEAPONOFFHAND,
+            INVTYPE_HOLDABLE, INVTYPE_AMMO, INVTYPE_THROWN, INVTYPE_RANGEDRIGHT,
+            INVTYPE_QUIVER, INVTYPE_RELIC, INVTYPE_WEAPONMAINHAND
+        }
+
+        local itemLocationDropDown = CreateStandardDropDown(MainFrame, "TOP",
+                                                            65, -277, 145,
+                                                            "Item Location",
+                                                            itemLocationDropDownMenuItems,
+                                                            "Item Location")
+        local itemLocationButton = CreateStandardCheckButton(
+                                       "ItemTypeCheckButton", MainFrame,
+                                       itemLocationDropDown, "Item Location",
+                                       "TOP", -150, -280)
+
+        local itemTypeDropDownMenuItems = {
+            "Armor", "Consumable", "Container", "Gem", "Key", "Miscellaneous",
+            "Money", "Recipe", "Projectile", "Quest", "Quiver", "Tradeskill",
+            "Weapon"
+        }
+
+        local itemTypeDropDown = CreateStandardDropDown(MainFrame, "TOP", 65,
+                                                        -317, 145, "Item Type",
+                                                        itemTypeDropDownMenuItems,
+                                                        "Item Type")
+
+        local itemTypeButton = CreateStandardCheckButton("ItemTypeCheckBox",
+                                                         MainFrame,
+                                                         itemTypeDropDown,
+                                                         "Item Type", "TOP",
+                                                         -150, -320)
 
         local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM",
                                             0, 15, nil, nil, nil)
