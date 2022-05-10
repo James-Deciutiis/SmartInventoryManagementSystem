@@ -159,7 +159,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
 
         local MessageFrame = CreateFrame("ScrollingMessageFrame",
                                          "ConfirmationMessageFrame", f)
-        MessageFrame:SetSize(350, 350)
+        MessageFrame:SetSize(350, 300)
         MessageFrame:SetPoint("CENTER", 0, 20)
         MessageFrame:SetJustifyH("CENTER")
         MessageFrame:SetFading(false)
@@ -181,13 +181,13 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
                                       "UIPanelScrollBarTemplate")
         scrollBar:SetPoint("RIGHT", f, "RIGHT", -10, 10)
-        scrollBar:SetSize(30, 350)
+        scrollBar:SetSize(30, 300)
         f.scrollBar = scrollBar
 
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
         total:SetSize(200, 200)
-        total:SetPoint("BOTTOM", 0, 50)
+        total:SetPoint("BOTTOM", 0, 70)
         total:SetFontObject(GameFontNormal)
         total:SetJustifyH("LEFT")
         total:SetFading(false)
@@ -216,10 +216,24 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         end)
         f.SellButton = sellButton
 
+        local mailButton = CreateStandardButton(ConfirmationFrame, "Mail",
+                                                "BOTTOM", 0, 40, 100, 25)
+
+        f.MailButton = mailButton
+        mailButton:RegisterEvent("MAIL_SHOW")
+        mailButton:RegisterEvent("MAIL_CLOSED")
+        mailButton:SetEnabled(false)
+        mailButton:SetScript("OnEvent", function(self, event)
+            if event == "MAIL_SHOW" then
+                self:SetEnabled(true)
+            else
+                self:SetEnabled(false)
+            end
+        end)
+        f.DestroyButton = mailButton
         local destroyButton = CreateStandardButton(ConfirmationFrame, "Destroy",
                                                    "BOTTOMLEFT", 20, 10, 100,
                                                    25, "DestroyButton")
-        f.DestroyButton = destroyButton
 
         local cancelButton = CreateStandardButton(ConfirmationFrame, "Cancel",
                                                   "BOTTOMRIGHT", -20, 10, 100,
@@ -237,8 +251,8 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         ConfirmationFrame:Hide()
         MainFrame_Show()
     end)
-
     ConfirmationFrame.SellButton:SetEnabled(MerchantFrame:IsVisible())
+
     ConfirmationFrame.DestroyButton:SetScript("OnClick", function()
         for key, value in ipairs(itemCoords) do
             PickupContainerItem(value.bag, value.slot)
@@ -248,6 +262,17 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         ConfirmationFrame:Hide()
         MainFrame_Show()
     end)
+
+    ConfirmationFrame.MailButton:SetScript("OnClick", function()
+        if (SendMailFrame:IsShown()) then
+            for key, value in ipairs(itemCoords) do
+                UseContainerItem(value.bag, value.slot)
+            end
+            ConfirmationFrame:Hide()
+            MainFrame_Show()
+        end
+    end)
+    ConfirmationFrame.MailButton:SetEnabled(MailFrame:IsVisible())
 
     local length = 0
     for key, value in ipairs(itemLinks) do length = length + 1 end
@@ -259,7 +284,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         ConfirmationFrame.MessageFrame:AddMessage(value)
     end
 
-    local bottomPadding = 28
+    local bottomPadding = 25
     local visualMax = length < bottomPadding and 0 or length - bottomPadding
     if (visualMax == 0) then
         ConfirmationFrame.scrollBar:Hide()
