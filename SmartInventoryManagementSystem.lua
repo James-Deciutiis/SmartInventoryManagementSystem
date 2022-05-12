@@ -10,7 +10,6 @@ flags["Item Location"] = false
 flags["Item Type"] = false
 
 dropDownValues = {}
-dropDownValues["Equipment"] = nil
 dropDownValues["Expansion"] = nil
 dropDownValues["Item Location"] = nil
 dropDownValues["Item Type"] = nil
@@ -180,7 +179,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
 
         local resultsLabel = ConfirmationFrame:CreateFontString(
                                  ConfirmationFrame, _, "GameFontNormal")
-        resultsLabel:SetPoint("TOP", -100, -50)
+        resultsLabel:SetPoint("TOP", -100, -40)
         resultsLabel:SetText("Results")
 
         local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
@@ -192,7 +191,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
         total:SetSize(200, 200)
-        total:SetPoint("BOTTOM", 0, 70)
+        total:SetPoint("BOTTOM", 0, 80)
         total:SetFontObject(GameFontNormal)
         total:SetJustifyH("LEFT")
         total:SetFading(false)
@@ -254,7 +253,7 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         local destroyButton = CreateStandardButton(ConfirmationFrame, "Destroy",
                                                    "BOTTOMLEFT", 20, 10, 100,
                                                    25, "DestroyButton")
-        f.DestroyButton = mailButton
+        f.DestroyButton = destroyButton
 
         local cancelButton = CreateStandardButton(ConfirmationFrame, "Cancel",
                                                   "BOTTOMRIGHT", -20, 10, 100,
