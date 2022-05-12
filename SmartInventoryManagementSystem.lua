@@ -355,7 +355,6 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
     local isHit = true
-    if (sellPrice == nil or sellPrice == 0) then return 0 end
     if (flags["Item Name"] and isHit) then
         if (not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
             isHit = false
@@ -403,7 +402,11 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
 
         table.insert(itemCoords, coords)
         table.insert(filteredItems, itemLink)
-        return sellPrice
+        if (sellPrice) then
+            return sellPrice
+        else
+            return 0
+        end
     end
 
     return 0
