@@ -403,7 +403,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         table.insert(itemCoords, coords)
         table.insert(filteredItems, itemLink)
         if (sellPrice) then
-            return sellPrice
+            return sellPrice * itemCount
         else
             return 0
         end
