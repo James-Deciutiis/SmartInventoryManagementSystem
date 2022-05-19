@@ -13,6 +13,7 @@ dropDownValues = {}
 dropDownValues["Expansion"] = nil
 dropDownValues["Item Location"] = nil
 dropDownValues["Item Type"] = nil
+dropDownValues["Item Level"] = nil
 dropDownValues["Soulbound"] = nil
 
 expansionValueMapping = {}
@@ -52,29 +53,31 @@ itemTypeValueMapping["Glyph"] = 16
 itemTypeValueMapping["BattlePet"] = 17
 itemTypeValueMapping["WoWToken"] = 18
 
-function CreateStandardCheckButton(name, parent, box, text, position, x, y)
+function CreateStandardCheckButton(name, parent, boxes, text, position, x, y)
     local CheckButton = CreateFrame("CheckButton", name, parent,
                                     "ChatConfigCheckButtonTemplate")
     CheckButton:SetPoint(position, x, y)
     getglobal(CheckButton:GetName() .. "Text"):SetText(text)
     CheckButton:SetScript("OnClick", function()
         flags[text] = not flags[text]
-        if (flags[text]) then
-            box:Show()
-        else
-            box:Hide()
+        for _, box in ipairs(boxes) do
+            if (flags[text]) then
+                box:Show()
+            else
+                box:Hide()
+            end
         end
     end)
     return CheckButton
 end
 
-function CreateStandardEditBox(name, parent, position, x, y)
+function CreateStandardEditBox(name, parent, position, x, y, length, width)
     local editBox = CreateFrame("EditBox", name, parent,
                                 BackdropTemplateMixin and "BackdropTemplate")
     editBox:SetPoint(position, x, y)
     editBox:SetFontObject("ChatFontNormal")
     editBox:SetMultiLine(false)
-    editBox:SetSize(155, 40)
+    editBox:SetSize(length, width)
     editBox:SetAutoFocus(false)
     editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
     editBox:SetTextInsets(15, 12, 12, 11)
@@ -361,7 +364,32 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         end
     end
     if (flags["Item Level"] and isHit) then
-        if (tonumber(ItemLevelEditBox:GetText()) ~= itemLevel) then
+        local operators = {
+            ["="] = function()
+                return tonumber(ItemLevelEditBox:GetText()) == itemLevel
+            end,
+            ["<"] = function()
+                return itemLevel and itemLevel <
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            [">"] = function()
+                return itemLevel and itemLevel >
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            ["<="] = function()
+                return itemLevel and itemLevel <=
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            [">="] = function()
+                return itemLevel and itemLevel >=
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            ["!="] = function()
+                return tonumber(ItemLevelEditBox:GetText()) ~= itemLevel
+            end
+        }
+
+        if (operators[dropDownValues["Item Level"] or "="]() == false) then
             isHit = false
         end
     end
@@ -452,19 +480,25 @@ function MainFrame_Show()
         flags:SetJustifyH("CENTER")
 
         local itemNameEditBox = CreateStandardEditBox("ItemNameEditBox",
-                                                      queries, "TOP", 65, -45)
+                                                      queries, "TOP", 65, -45,
+                                                      155, 40)
         local itemNameButton = CreateStandardCheckButton("ItemNameCheckBox",
                                                          queries,
-                                                         itemNameEditBox,
+                                                         {itemNameEditBox},
                                                          "Item Name", "TOP",
                                                          -150, -50)
 
+        local iLvlDropDownMenuItems = {"=", "<", ">", "<=", ">=", "!="}
+        local iLvlDropDown = CreateStandardDropDown(queries, "TOP", 27, -90, 70,
+                                                    "Operator",
+                                                    iLvlDropDownMenuItems,
+                                                    "Item Level")
         local iLvlEditBox = CreateStandardEditBox("ItemLevelEditBox", queries,
-                                                  "TOP", 65, -85)
+                                                  "TOP", 115, -80, 77.5, 40)
         local iLvlButton = CreateStandardCheckButton("ItemLevelCheckBox",
-                                                     queries, iLvlEditBox,
-                                                     "Item Level", "TOP", -150,
-                                                     -90)
+                                                     queries, {
+            iLvlEditBox, iLvlDropDown
+        }, "Item Level", "TOP", -150, -90)
 
         local expansionDropDownMenuItems = {
             "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm",
@@ -477,7 +511,7 @@ function MainFrame_Show()
                                                          "Expansion")
         local expansionButton = CreateStandardCheckButton("ExpansionCheckBox",
                                                           queries,
-                                                          expansionDropDown,
+                                                          {expansionDropDown},
                                                           "Expansion", "TOP",
                                                           -150, -130)
         local qualityDropDownMenuItems = {
@@ -492,7 +526,7 @@ function MainFrame_Show()
                                                        "Quality")
         local qualityButton = CreateStandardCheckButton("QualityCheckBox",
                                                         queries,
-                                                        qualityDropDown,
+                                                        {qualityDropDown},
                                                         "Quality", "TOP", -150,
                                                         -170)
 
@@ -513,7 +547,7 @@ function MainFrame_Show()
                                                             "Item Location")
         local itemLocationButton = CreateStandardCheckButton(
                                        "ItemTypeCheckButton", queries,
-                                       itemLocationDropDown, "Item Location",
+                                       {itemLocationDropDown}, "Item Location",
                                        "TOP", -150, -210)
 
         local itemTypeDropDownMenuItems = {
@@ -529,7 +563,7 @@ function MainFrame_Show()
 
         local itemTypeButton = CreateStandardCheckButton("ItemTypeCheckBox",
                                                          queries,
-                                                         itemTypeDropDown,
+                                                         {itemTypeDropDown},
                                                          "Item Type", "TOP",
                                                          -150, -250)
 
@@ -540,10 +574,9 @@ function MainFrame_Show()
                                                            bindingTypeDropDownMenuItems,
                                                            "Soulbound")
         local bindingTypeButton = CreateStandardCheckButton("SoulBoundCheckBox",
-                                                            queries,
-                                                            bindingTypeDropDown,
-                                                            "Binding Type",
-                                                            "TOP", -150, -290)
+                                                            queries, {
+            bindingTypeDropDown
+        }, "Binding Type", "TOP", -150, -290)
 
         local flagLabel = flags:CreateFontString(flags, _, "GameFontNormal")
         flagLabel:SetPoint("TOP", -150, -30)
