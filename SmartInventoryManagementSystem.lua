@@ -358,7 +358,8 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
     local isHit = true
-    if (flags["Item Name"] and isHit) then
+    if (flags["Item Name"] and isHit and itemName) then
+        print(itemName)
         if (not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
             isHit = false
         end
