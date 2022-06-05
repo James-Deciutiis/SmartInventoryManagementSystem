@@ -460,151 +460,163 @@ function ParseBags()
 end
 
 function MainFrame_Show()
-    if not MainFrame then
-        local f = CreateStandardFrame("MainFrame", "S.I.M.S")
+    if not MainFrame then MainFrame_Create() end
 
-        local queries = CreateFrame("ScrollingMessageFrame", nil, f)
-        queries:SetSize(400, 400)
-        queries:SetPoint("TOP", 0, -5)
-        queries:SetFontObject(GameFontNormal)
-        queries:SetJustifyH("CENTER")
-
-        local queryLabel =
-            queries:CreateFontString(queries, _, "GameFontNormal")
-        queryLabel:SetPoint("TOP", -150, -30)
-        queryLabel:SetText("Queries")
-
-        local flags = CreateFrame("ScrollingMessageFrame", nil, f)
-        flags:SetSize(400, 100)
-        flags:SetPoint("BOTTOM", 0, 55)
-        flags:SetFontObject(GameFontNormal)
-        flags:SetJustifyH("CENTER")
-
-        local itemNameEditBox = CreateStandardEditBox("ItemNameEditBox",
-                                                      queries, "TOP", 65, -45,
-                                                      155, 40)
-        local itemNameButton = CreateStandardCheckButton("ItemNameCheckBox",
-                                                         queries,
-                                                         {itemNameEditBox},
-                                                         "Item Name", "TOP",
-                                                         -150, -50)
-
-        local iLvlDropDownMenuItems = {"=", "<", ">", "<=", ">=", "!="}
-        local iLvlDropDown = CreateStandardDropDown(queries, "TOP", 27, -90, 70,
-                                                    "Operator",
-                                                    iLvlDropDownMenuItems,
-                                                    "Item Level")
-        local iLvlEditBox = CreateStandardEditBox("ItemLevelEditBox", queries,
-                                                  "TOP", 115, -80, 77.5, 40)
-        local iLvlButton = CreateStandardCheckButton("ItemLevelCheckBox",
-                                                     queries, {
-            iLvlEditBox, iLvlDropDown
-        }, "Item Level", "TOP", -150, -90)
-
-        local expansionDropDownMenuItems = {
-            "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm",
-            "Mists of Pandaria", "Warlords of Draenor", "Legion",
-            "Battle for Azeroth", "Shadowlands"
-        }
-        local expansionDropDown = CreateStandardDropDown(queries, "TOP", 65,
-                                                         -125, 145, "Expansion",
-                                                         expansionDropDownMenuItems,
-                                                         "Expansion")
-        local expansionButton = CreateStandardCheckButton("ExpansionCheckBox",
-                                                          queries,
-                                                          {expansionDropDown},
-                                                          "Expansion", "TOP",
-                                                          -150, -130)
-        local qualityDropDownMenuItems = {
-            ITEM_QUALITY0_DESC, ITEM_QUALITY1_DESC, ITEM_QUALITY2_DESC,
-            ITEM_QUALITY3_DESC, ITEM_QUALITY4_DESC, ITEM_QUALITY5_DESC,
-            ITEM_QUALITY6_DESC, ITEM_QUALITY7_DESC, ITEM_QUALITY8_DESC
-        }
-
-        local qualityDropDown = CreateStandardDropDown(queries, "TOP", 65, -165,
-                                                       145, "Quality",
-                                                       qualityDropDownMenuItems,
-                                                       "Quality")
-        local qualityButton = CreateStandardCheckButton("QualityCheckBox",
-                                                        queries,
-                                                        {qualityDropDown},
-                                                        "Quality", "TOP", -150,
-                                                        -170)
-
-        local itemLocationDropDownMenuItems = {
-            INVTYPE_HEAD, INVTYPE_NECK, INVTYPE_SHOULDER, INVTYPE_BODY,
-            INVTYPE_CHEST, INVTYPE_WAIST, INVTYPE_LEGS, INVTYPE_FEET,
-            INVTYPE_WRIST, INVTYPE_HAND, INVTYPE_FINGER, INVTYPE_TRINKET,
-            INVTYPE_WEAPON, INVTYPE_RANGED, INVTYPE_CLOAK, INVTYPE_2HWEAPON,
-            INVTYPE_BAG, INVTYPE_TABARD, INVTYPE_WEAPONOFFHAND,
-            INVTYPE_HOLDABLE, INVTYPE_AMMO, INVTYPE_THROWN, INVTYPE_RANGEDRIGHT,
-            INVTYPE_QUIVER, INVTYPE_RELIC, INVTYPE_WEAPONMAINHAND
-        }
-
-        local itemLocationDropDown = CreateStandardDropDown(queries, "TOP", 65,
-                                                            -205, 145,
-                                                            "Item Location",
-                                                            itemLocationDropDownMenuItems,
-                                                            "Item Location")
-        local itemLocationButton = CreateStandardCheckButton(
-                                       "ItemTypeCheckButton", queries,
-                                       {itemLocationDropDown}, "Item Location",
-                                       "TOP", -150, -210)
-
-        local itemTypeDropDownMenuItems = {
-            "Armor", "Consumable", "Container", "Gem", "Key", "Miscellaneous",
-            "Money", "Recipe", "Projectile", "Quest", "Quiver", "Tradeskill",
-            "Weapon"
-        }
-
-        local itemTypeDropDown = CreateStandardDropDown(queries, "TOP", 65,
-                                                        -245, 145, "Item Type",
-                                                        itemTypeDropDownMenuItems,
-                                                        "Item Type")
-
-        local itemTypeButton = CreateStandardCheckButton("ItemTypeCheckBox",
-                                                         queries,
-                                                         {itemTypeDropDown},
-                                                         "Item Type", "TOP",
-                                                         -150, -250)
-
-        local bindingTypeDropDownMenuItems = {"Soulbound", "Not Bound"}
-        local bindingTypeDropDown = CreateStandardDropDown(queries, "TOP", 65,
-                                                           -285, 145,
-                                                           "Binding Type",
-                                                           bindingTypeDropDownMenuItems,
-                                                           "Soulbound")
-        local bindingTypeButton = CreateStandardCheckButton("SoulBoundCheckBox",
-                                                            queries, {
-            bindingTypeDropDown
-        }, "Binding Type", "TOP", -150, -290)
-
-        local flagLabel = flags:CreateFontString(flags, _, "GameFontNormal")
-        flagLabel:SetPoint("TOP", -150, -30)
-        flagLabel:SetText("Flags")
-
-        local equipmentButton = CreateStandardCheckButton("EquipmentCheckBox",
-                                                          flags, nil,
-                                                          "Equipment", "TOP",
-                                                          -150, -50)
-
-        local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM",
-                                            0, 15, nil, nil, nil)
-        button:SetScript("OnClick", function(self)
-            ParseBags()
-            f:Hide()
-        end)
-
-        f:Show()
-    end
     if text then MainFrameEditBox:SetText(text) end
 
     MainFrame:Show()
 end
 
+local function MainFrame_Create()
+    local f = CreateStandardFrame("MainFrame", "S.I.M.S")
+
+    local queries = CreateFrame("ScrollingMessageFrame", nil, f)
+    queries:SetSize(400, 400)
+    queries:SetPoint("TOP", 0, -5)
+    queries:SetFontObject(GameFontNormal)
+    queries:SetJustifyH("CENTER")
+
+    local queryLabel = queries:CreateFontString(queries, _, "GameFontNormal")
+    queryLabel:SetPoint("TOP", -150, -30)
+    queryLabel:SetText("Queries")
+
+    local flags = CreateFrame("ScrollingMessageFrame", nil, f)
+    flags:SetSize(400, 100)
+    flags:SetPoint("BOTTOM", 0, 55)
+    flags:SetFontObject(GameFontNormal)
+    flags:SetJustifyH("CENTER")
+
+    local itemNameEditBox = CreateStandardEditBox("ItemNameEditBox", queries,
+                                                  "TOP", 65, -45, 155, 40)
+    local itemNameButton = CreateStandardCheckButton("ItemNameCheckBox",
+                                                     queries, {itemNameEditBox},
+                                                     "Item Name", "TOP", -150,
+                                                     -50)
+
+    local iLvlDropDownMenuItems = {"=", "<", ">", "<=", ">=", "!="}
+    local iLvlDropDown = CreateStandardDropDown(queries, "TOP", 27, -90, 70,
+                                                "Operator",
+                                                iLvlDropDownMenuItems,
+                                                "Item Level")
+    local iLvlEditBox = CreateStandardEditBox("ItemLevelEditBox", queries,
+                                              "TOP", 115, -80, 77.5, 40)
+    local iLvlButton = CreateStandardCheckButton("ItemLevelCheckBox", queries,
+                                                 {iLvlEditBox, iLvlDropDown},
+                                                 "Item Level", "TOP", -150, -90)
+
+    local expansionDropDownMenuItems = {
+        "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm",
+        "Mists of Pandaria", "Warlords of Draenor", "Legion",
+        "Battle for Azeroth", "Shadowlands"
+    }
+    local expansionDropDown = CreateStandardDropDown(queries, "TOP", 65, -125,
+                                                     145, "Expansion",
+                                                     expansionDropDownMenuItems,
+                                                     "Expansion")
+    local expansionButton = CreateStandardCheckButton("ExpansionCheckBox",
+                                                      queries,
+                                                      {expansionDropDown},
+                                                      "Expansion", "TOP", -150,
+                                                      -130)
+    local qualityDropDownMenuItems = {
+        ITEM_QUALITY0_DESC, ITEM_QUALITY1_DESC, ITEM_QUALITY2_DESC,
+        ITEM_QUALITY3_DESC, ITEM_QUALITY4_DESC, ITEM_QUALITY5_DESC,
+        ITEM_QUALITY6_DESC, ITEM_QUALITY7_DESC, ITEM_QUALITY8_DESC
+    }
+
+    local qualityDropDown = CreateStandardDropDown(queries, "TOP", 65, -165,
+                                                   145, "Quality",
+                                                   qualityDropDownMenuItems,
+                                                   "Quality")
+    local qualityButton = CreateStandardCheckButton("QualityCheckBox", queries,
+                                                    {qualityDropDown},
+                                                    "Quality", "TOP", -150, -170)
+
+    local itemLocationDropDownMenuItems = {
+        INVTYPE_HEAD, INVTYPE_NECK, INVTYPE_SHOULDER, INVTYPE_BODY,
+        INVTYPE_CHEST, INVTYPE_WAIST, INVTYPE_LEGS, INVTYPE_FEET, INVTYPE_WRIST,
+        INVTYPE_HAND, INVTYPE_FINGER, INVTYPE_TRINKET, INVTYPE_WEAPON,
+        INVTYPE_RANGED, INVTYPE_CLOAK, INVTYPE_2HWEAPON, INVTYPE_BAG,
+        INVTYPE_TABARD, INVTYPE_WEAPONOFFHAND, INVTYPE_HOLDABLE, INVTYPE_AMMO,
+        INVTYPE_THROWN, INVTYPE_RANGEDRIGHT, INVTYPE_QUIVER, INVTYPE_RELIC,
+        INVTYPE_WEAPONMAINHAND
+    }
+
+    local itemLocationDropDown = CreateStandardDropDown(queries, "TOP", 65,
+                                                        -205, 145,
+                                                        "Item Location",
+                                                        itemLocationDropDownMenuItems,
+                                                        "Item Location")
+    local itemLocationButton = CreateStandardCheckButton("ItemTypeCheckButton",
+                                                         queries, {
+        itemLocationDropDown
+    }, "Item Location", "TOP", -150, -210)
+
+    local itemTypeDropDownMenuItems = {
+        "Armor", "Consumable", "Container", "Gem", "Key", "Miscellaneous",
+        "Money", "Recipe", "Projectile", "Quest", "Quiver", "Tradeskill",
+        "Weapon"
+    }
+
+    local itemTypeDropDown = CreateStandardDropDown(queries, "TOP", 65, -245,
+                                                    145, "Item Type",
+                                                    itemTypeDropDownMenuItems,
+                                                    "Item Type")
+
+    local itemTypeButton = CreateStandardCheckButton("ItemTypeCheckBox",
+                                                     queries,
+                                                     {itemTypeDropDown},
+                                                     "Item Type", "TOP", -150,
+                                                     -250)
+
+    local bindingTypeDropDownMenuItems = {"Soulbound", "Not Bound"}
+    local bindingTypeDropDown = CreateStandardDropDown(queries, "TOP", 65, -285,
+                                                       145, "Binding Type",
+                                                       bindingTypeDropDownMenuItems,
+                                                       "Soulbound")
+    local bindingTypeButton = CreateStandardCheckButton("SoulBoundCheckBox",
+                                                        queries,
+                                                        {bindingTypeDropDown},
+                                                        "Binding Type", "TOP",
+                                                        -150, -290)
+
+    local flagLabel = flags:CreateFontString(flags, _, "GameFontNormal")
+    flagLabel:SetPoint("TOP", -150, -30)
+    flagLabel:SetText("Flags")
+
+    local equipmentButton = CreateStandardCheckButton("EquipmentCheckBox",
+                                                      flags, nil, "Equipment",
+                                                      "TOP", -150, -50)
+
+    local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM", 0,
+                                        15, nil, nil, nil)
+    button:SetScript("OnClick", function(self)
+        ParseBags()
+        f:Hide()
+    end)
+    MainFrame:RegisterEvent("MERCHANT_SHOW")
+    MainFrame:RegisterEvent("MERCHANT_CLOSED")
+    MainFrame:RegisterEvent("MAIL_SHOW")
+    MainFrame:RegisterEvent("MAIL_CLOSED")
+    MainFrame:RegisterEvent("BANKFRAME_OPENED")
+    MainFrame:RegisterEvent("BANKFRAME_CLOSED")
+    MainFrame:SetScript("OnEvent", function(self, event)
+        if (event.find(event, "SHOW")) then
+            MainFrame_Show()
+        else
+            MainFrame:Hide()
+        end
+    end)
+    MainFrame:Hide()
+end
+
+local function main() MainFrame_Create() end
+
 local function SimsHandler()
     scanBags()
     MainFrame_Show()
 end
+
+main()
 
 SlashCmdList["SIMS"] = SimsHandler;
