@@ -3,12 +3,13 @@ local FrameFactory = {}
 SIMS.FrameFactory = FrameFactory
 
 function FrameFactory.CreateStandardCheckButton(name, parent, boxes, text,
-                                                position, x, y)
+                                                position, x, y, hookScript)
     local CheckButton = CreateFrame("CheckButton", name, parent,
                                     "ChatConfigCheckButtonTemplate")
     CheckButton:SetPoint(position, x, y)
     getglobal(CheckButton:GetName() .. "Text"):SetText(text)
-    CheckButton:SetScript("OnClick", function()
+
+    local checkButtonCallback = function()
         SIMS.mappings.flags[text] = not SIMS.mappings.flags[text]
         for _, box in ipairs(boxes) do
             if (SIMS.mappings.flags[text]) then
@@ -17,12 +18,18 @@ function FrameFactory.CreateStandardCheckButton(name, parent, boxes, text,
                 box:Hide()
             end
         end
+    end
+
+    CheckButton:SetScript("OnClick", function()
+        checkButtonCallback()
+        if (hookScript) then hookScript() end
     end)
+
     return CheckButton
 end
 
 function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
-                                            length, width)
+                                            length, width, hookScript)
     local editBox = CreateFrame("EditBox", name, parent,
                                 BackdropTemplateMixin and "BackdropTemplate")
     editBox:SetPoint(position, x, y)
@@ -32,9 +39,17 @@ function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
     editBox:SetAutoFocus(false)
     editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
     editBox:SetTextInsets(15, 12, 12, 11)
-    editBox:SetScript("OnEscapePressed", function() editBox:ClearFocus() end)
-    editBox:Hide()
+    local editBoxCallback = function() editBox:ClearFocus() end
+    editBox:SetScript("OnEscapePressed", function()
+        editBoxCallback()
+        if (hookScript) then hookScript() end
+    end)
+    editBox:SetScript("OnEnterPressed", function()
+        editBoxCallback()
+        if (hookScript) then hookScript() end
+    end)
 
+    editBox:Hide()
     return editBox
 end
 
@@ -105,7 +120,7 @@ function FrameFactory.CreateStandardButton(parent, text, position, x, y, length,
 end
 
 function FrameFactory.CreateStandardDropDown(parent, position, x, y, width,
-                                             text, menuItems, target)
+                                             text, menuItems, target, hookScript)
     local dropDown = CreateFrame("FRAME", nil, parent, "UIDropDownMenuTemplate")
     dropDown:SetPoint(position, x, y)
     dropDown:Hide()
@@ -127,6 +142,7 @@ function FrameFactory.CreateStandardDropDown(parent, position, x, y, width,
         SIMS.mappings.dropDownValues[target] = newValue
         UIDropDownMenu_SetText(dropDown, newValue)
         CloseDropDownMenus()
+        if (hookScript) then hookScript() end
     end
 
     return dropDown

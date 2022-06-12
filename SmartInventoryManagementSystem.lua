@@ -11,7 +11,162 @@ end
 
 SlashCmdList["SIMS"] = SimsHandler;
 
-function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
+function scanBags()
+    for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+        for slot = 1, GetContainerNumSlots(currentBag) do
+            local itemLink = GetContainerItemLink(currentBag, slot)
+        end
+    end
+end
+
+function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
+    itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
+        GetItemInfo(itemLink)
+    icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
+        GetContainerItemInfo(currentBag, slot)
+    local isHit = true
+    if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
+        if (not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
+            isHit = false
+        end
+    end
+    if (SIMS.mappings.flags["Item Level"] and isHit) then
+        local operators = {
+            ["="] = function()
+                return tonumber(ItemLevelEditBox:GetText()) == itemLevel
+            end,
+            ["<"] = function()
+                return itemLevel and itemLevel <
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            [">"] = function()
+                return itemLevel and itemLevel >
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            ["<="] = function()
+                return itemLevel and itemLevel <=
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            [">="] = function()
+                return itemLevel and itemLevel >=
+                           tonumber(ItemLevelEditBox:GetText()) or false
+            end,
+            ["!="] = function()
+                return tonumber(ItemLevelEditBox:GetText()) ~= itemLevel
+            end
+        }
+
+        if (operators[SIMS.mappings.dropDownValues["Item Level"] or "="]() ==
+            false) then isHit = false end
+    end
+    if (SIMS.mappings.flags["Equipment"] and isHit) then
+        if (itemType ~= "Armor" and itemType ~= "Weapon") then
+            isHit = false
+        end
+    end
+    if (SIMS.mappings.flags["Binding Type"] and isHit) then
+        if (SIMS.mappings.dropDownValues["Soulbound"] == "Not Bound" and isBound ~=
+            false) then
+            isHit = false
+        elseif (SIMS.mappings.dropDownValues["Soulbound"] == "Soulbound" and
+            isBound ~= true) then
+            isHit = false
+        end
+    end
+    if (SIMS.mappings.flags["Expansion"] and isHit) then
+        if (SIMS.mappings.expansionValueMapping[SIMS.mappings.dropDownValues["Expansion"]] ~=
+            expacID) then isHit = false end
+    end
+    if (SIMS.mappings.flags["Quality"] and isHit) then
+        if (SIMS.mappings.qualityValueMapping[SIMS.mappings.dropDownValues["Quality"]] ~=
+            itemQuality) then isHit = false end
+    end
+    if (SIMS.mappings.flags["Item Location"] and isHit) then
+        if (SIMS.mappings.dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
+            isHit = false
+        end
+    end
+    if (SIMS.mappings.flags["Item Type"] and isHit) then
+        if (SIMS.mappings.dropDownValues["Item Type"] ~= itemType) then
+            isHit = false
+        end
+    end
+    if (isHit) then
+        local coords = {}
+        coords.bag = currentBag
+        coords.slot = slot
+
+        table.insert(itemCoords, coords)
+        table.insert(filteredItems, itemLink)
+        if (sellPrice) then
+            return sellPrice * itemCount
+        else
+            return 0
+        end
+    end
+
+    return 0
+end
+
+function ParseBags()
+    local filteredItems = {}
+    local itemCoords = {}
+    local totalSellPrice = 0
+    for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+        for slot = 1, GetContainerNumSlots(currentBag) do
+            local itemLink = GetContainerItemLink(currentBag, slot)
+            if (itemLink) then
+                totalSellPrice = totalSellPrice +
+                                     filter(itemLink, filteredItems, itemCoords,
+                                            currentBag, slot)
+            end
+        end
+    end
+
+    local results = {}
+    results.filteredItems = filteredItems
+    results.itemCoords = itemCoords
+    results.totalSellPrice = totalSellPrice
+
+    return results
+end
+
+local function MainFrame_Create()
+    if (MainFrame) then return end
+
+    local f = SIMS.FrameFactory.CreateStandardFrame("MainFrame", "S.I.M.S")
+    local button = SIMS.FrameFactory.CreateStandardButton(MainFrame,
+                                                          "Query Bags",
+                                                          "BOTTOM", 0, 15, nil,
+                                                          nil, nil)
+
+    button:SetScript("OnClick", function(self)
+        CreateFunctionFrame_Show()
+        f:Hide()
+    end)
+
+    MainFrame:RegisterEvent("MERCHANT_SHOW")
+    MainFrame:RegisterEvent("MERCHANT_CLOSED")
+    MainFrame:RegisterEvent("MAIL_SHOW")
+    MainFrame:RegisterEvent("MAIL_CLOSED")
+    MainFrame:RegisterEvent("BANKFRAME_OPENED")
+    MainFrame:RegisterEvent("BANKFRAME_CLOSED")
+    MainFrame:SetScript("OnEvent", function(self, event)
+        if (event.find(event, "SHOW")) then
+            MainFrame_Show()
+        else
+            MainFrame:Hide()
+        end
+    end)
+
+    MainFrame:Hide()
+end
+
+function ConfirmationFrame_Show()
+    local filterResults = ParseBags()
+    itemLinks = filterResults.filteredItems
+    totalSellPrice = filterResults.totalSellPrice
+    itemCoords = filterResults.itemCoords
     if not ConfirmationFrame then
         local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmationFrame",
                                                         "Confirm")
@@ -203,157 +358,59 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     ConfirmationFrame:Show()
 end
 
-function scanBags()
-    for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-        for slot = 1, GetContainerNumSlots(currentBag) do
-            local itemLink = GetContainerItemLink(currentBag, slot)
-        end
-    end
-end
-
-function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
-    itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
-        GetItemInfo(itemLink)
-    icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
-        GetContainerItemInfo(currentBag, slot)
-    local isHit = true
-    if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
-        if (not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
-            isHit = false
-        end
-    end
-    if (SIMS.mappings.flags["Item Level"] and isHit) then
-        local operators = {
-            ["="] = function()
-                return tonumber(ItemLevelEditBox:GetText()) == itemLevel
-            end,
-            ["<"] = function()
-                return itemLevel and itemLevel <
-                           tonumber(ItemLevelEditBox:GetText()) or false
-            end,
-            [">"] = function()
-                return itemLevel and itemLevel >
-                           tonumber(ItemLevelEditBox:GetText()) or false
-            end,
-            ["<="] = function()
-                return itemLevel and itemLevel <=
-                           tonumber(ItemLevelEditBox:GetText()) or false
-            end,
-            [">="] = function()
-                return itemLevel and itemLevel >=
-                           tonumber(ItemLevelEditBox:GetText()) or false
-            end,
-            ["!="] = function()
-                return tonumber(ItemLevelEditBox:GetText()) ~= itemLevel
-            end
-        }
-
-        if (operators[SIMS.mappings.dropDownValues["Item Level"] or "="]() ==
-            false) then isHit = false end
-    end
-    if (SIMS.mappings.flags["Equipment"] and isHit) then
-        if (itemType ~= "Armor" and itemType ~= "Weapon") then
-            isHit = false
-        end
-    end
-    if (SIMS.mappings.flags["Binding Type"] and isHit) then
-        if (SIMS.mappings.dropDownValues["Soulbound"] == "Not Bound" and isBound ~=
-            false) then
-            isHit = false
-        elseif (SIMS.mappings.dropDownValues["Soulbound"] == "Soulbound" and
-            isBound ~= true) then
-            isHit = false
-        end
-    end
-    if (SIMS.mappings.flags["Expansion"] and isHit) then
-        if (SIMS.mappings.expansionValueMapping[SIMS.mappings.dropDownValues["Expansion"]] ~=
-            expacID) then isHit = false end
-    end
-    if (SIMS.mappings.flags["Quality"] and isHit) then
-        if (SIMS.mappings.qualityValueMapping[SIMS.mappings.dropDownValues["Quality"]] ~=
-            itemQuality) then isHit = false end
-    end
-    if (SIMS.mappings.flags["Item Location"] and isHit) then
-        if (SIMS.mappings.dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
-            isHit = false
-        end
-    end
-    if (SIMS.mappings.flags["Item Type"] and isHit) then
-        if (SIMS.mappings.dropDownValues["Item Type"] ~= itemType) then
-            isHit = false
-        end
-    end
-    if (isHit) then
-        local coords = {}
-        coords.bag = currentBag
-        coords.slot = slot
-
-        table.insert(itemCoords, coords)
-        table.insert(filteredItems, itemLink)
-        if (sellPrice) then
-            return sellPrice * itemCount
-        else
-            return 0
-        end
-    end
-
-    return 0
-end
-
-function ParseBags()
-    local filteredItems = {}
-    local itemCoords = {}
-    local totalSellPrice = 0
-    for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-        for slot = 1, GetContainerNumSlots(currentBag) do
-            local itemLink = GetContainerItemLink(currentBag, slot)
-            if (itemLink) then
-                totalSellPrice = totalSellPrice +
-                                     filter(itemLink, filteredItems, itemCoords,
-                                            currentBag, slot)
-            end
-        end
-    end
-
-    ConfirmationFrame_Show(filteredItems, totalSellPrice, itemCoords)
-end
-
-local function MainFrame_Create()
-    if (MainFrame) then return end
-
-    local f = SIMS.FrameFactory.CreateStandardFrame("MainFrame", "S.I.M.S")
-    local button = SIMS.FrameFactory.CreateStandardButton(MainFrame,
-                                                          "Query Bags",
-                                                          "BOTTOM", 0, 15, nil,
-                                                          nil, nil)
-
-    button:SetScript("OnClick", function(self)
-        CreateFunctionFrame_Show()
-        f:Hide()
-    end)
-
-    MainFrame:RegisterEvent("MERCHANT_SHOW")
-    MainFrame:RegisterEvent("MERCHANT_CLOSED")
-    MainFrame:RegisterEvent("MAIL_SHOW")
-    MainFrame:RegisterEvent("MAIL_CLOSED")
-    MainFrame:RegisterEvent("BANKFRAME_OPENED")
-    MainFrame:RegisterEvent("BANKFRAME_CLOSED")
-    MainFrame:SetScript("OnEvent", function(self, event)
-        if (event.find(event, "SHOW")) then
-            MainFrame_Show()
-        else
-            MainFrame:Hide()
-        end
-    end)
-
-    MainFrame:Hide()
-end
-
 local function CreateFunctionFrame_Create()
     if (CreateFunctionFrame) then return end
 
     local f = SIMS.FrameFactory.CreateLargeFrame("CreateFunctionFrame",
                                                  "Create new function")
+
+    -- Right side of Create function frame
+    local currentResults = CreateFrame("ScrollingMessageFrame", nil, f)
+    currentResults:SetSize(400, 400)
+    currentResults:SetPoint("TOP", 0, -5)
+    currentResults:SetFontObject(GameFontNormal)
+    currentResults:SetJustifyH("CENTER")
+
+    local currentResultLabel = currentResults:CreateFontString(currentResults,
+                                                               _,
+                                                               "GameFontNormal")
+    currentResultLabel:SetPoint("TOP", 185, -30)
+    currentResultLabel:SetText("Current results")
+    currentResults:EnableMouse(true)
+    currentResults:EnableMouseWheel(true)
+
+    local MessageFrame = CreateFrame("ScrollingMessageFrame",
+                                     "ConfirmationMessageFrame", currentResults)
+    MessageFrame:SetSize(350, 300)
+    MessageFrame:SetPoint("CENTER", 185, 0)
+    MessageFrame:SetJustifyH("CENTER")
+    MessageFrame:SetFading(false)
+    MessageFrame:EnableMouseWheel(true)
+    MessageFrame:SetHyperlinksEnabled(true)
+    MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
+    MessageFrame:SetFontObject(GameFontNormal)
+    MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
+    MessageFrame:HookScript('OnHyperlinkEnter', function(self, link, text)
+        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
+        GameTooltip:SetHyperlink(link)
+        GameTooltip:Show()
+    end)
+    MessageFrame:HookScript('OnHyperlinkLeave',
+                            function(self, link, text) GameTooltip:Hide() end)
+    currentResults.MessageFrame = MessageFrame
+
+    local currentResultsCallback = function()
+        local parseResults = ParseBags()
+        local itemLinks = parseResults.filteredItems
+        local length = 0
+        for key, value in ipairs(itemLinks) do length = length + 1 end
+
+        currentResults.MessageFrame:Clear()
+        currentResults.MessageFrame:SetMaxLines(length)
+        for key, value in ipairs(itemLinks) do
+            currentResults.MessageFrame:AddMessage(value)
+        end
+    end
 
     -- left side of Create function frame
     local queries = CreateFrame("ScrollingMessageFrame", nil, f)
@@ -376,10 +433,11 @@ local function CreateFunctionFrame_Create()
     local buttonXOffset = -350
     local itemNameEditBox = SIMS.FrameFactory.CreateStandardEditBox(
                                 "ItemNameEditBox", queries, "TOP", -150, -45,
-                                155, 40)
+                                155, 40, currentResultsCallback)
     local itemNameButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemNameCheckBox", queries, {itemNameEditBox},
-                               "Item Name", "TOP", buttonXOffset, -50)
+                               "Item Name", "TOP", buttonXOffset, -50,
+                               currentResultsCallback)
 
     local iLvlDropDownMenuItems = {"=", "<", ">", "<=", ">=", "!="}
     local iLvlDropDown = SIMS.FrameFactory.CreateStandardDropDown(queries,
@@ -387,14 +445,15 @@ local function CreateFunctionFrame_Create()
                                                                   -90, 70,
                                                                   "Operator",
                                                                   iLvlDropDownMenuItems,
-                                                                  "Item Level")
+                                                                  "Item Level",
+                                                                  currentResultsCallback)
     local iLvlEditBox = SIMS.FrameFactory.CreateStandardEditBox(
                             "ItemLevelEditBox", queries, "TOP", -99, -80, 77.5,
-                            40)
+                            40, currentResultsCallback)
     local iLvlButton = SIMS.FrameFactory.CreateStandardCheckButton(
                            "ItemLevelCheckBox", queries,
                            {iLvlEditBox, iLvlDropDown}, "Item Level", "TOP",
-                           buttonXOffset, -90)
+                           buttonXOffset, -90, currentResultsCallback)
 
     local dropDownXOffset = -150
     local expansionDropDownMenuItems = {
@@ -409,11 +468,12 @@ local function CreateFunctionFrame_Create()
                                                                        145,
                                                                        "Expansion",
                                                                        expansionDropDownMenuItems,
-                                                                       "Expansion")
+                                                                       "Expansion",
+                                                                       currentResultsCallback)
     local expansionButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                 "ExpansionCheckBox", queries,
                                 {expansionDropDown}, "Expansion", "TOP",
-                                buttonXOffset, -130)
+                                buttonXOffset, -130, currentResultsCallback)
     local qualityDropDownMenuItems = {
         ITEM_QUALITY0_DESC, ITEM_QUALITY1_DESC, ITEM_QUALITY2_DESC,
         ITEM_QUALITY3_DESC, ITEM_QUALITY4_DESC, ITEM_QUALITY5_DESC,
@@ -426,10 +486,12 @@ local function CreateFunctionFrame_Create()
                                                                      -165, 145,
                                                                      "Quality",
                                                                      qualityDropDownMenuItems,
-                                                                     "Quality")
+                                                                     "Quality",
+                                                                     currentResultsCallback)
     local qualityButton = SIMS.FrameFactory.CreateStandardCheckButton(
                               "QualityCheckBox", queries, {qualityDropDown},
-                              "Quality", "TOP", buttonXOffset, -170)
+                              "Quality", "TOP", buttonXOffset, -170,
+                              currentResultsCallback)
 
     local itemLocationDropDownMenuItems = {
         INVTYPE_HEAD, INVTYPE_NECK, INVTYPE_SHOULDER, INVTYPE_BODY,
@@ -445,11 +507,12 @@ local function CreateFunctionFrame_Create()
                                      queries, "TOP", dropDownXOffset, -205, 145,
                                      "Item Location",
                                      itemLocationDropDownMenuItems,
-                                     "Item Location")
+                                     "Item Location", currentResultsCallback)
     local itemLocationButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                    "ItemTypeCheckButton", queries,
                                    {itemLocationDropDown}, "Item Location",
-                                   "TOP", buttonXOffset, -210)
+                                   "TOP", buttonXOffset, -210,
+                                   currentResultsCallback)
 
     local itemTypeDropDownMenuItems = {
         "Armor", "Consumable", "Container", "Gem", "Key", "Miscellaneous",
@@ -463,21 +526,24 @@ local function CreateFunctionFrame_Create()
                                                                       -245, 145,
                                                                       "Item Type",
                                                                       itemTypeDropDownMenuItems,
-                                                                      "Item Type")
+                                                                      "Item Type",
+                                                                      currentResultsCallback)
 
     local itemTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemTypeCheckBox", queries, {itemTypeDropDown},
-                               "Item Type", "TOP", buttonXOffset, -250)
+                               "Item Type", "TOP", buttonXOffset, -250,
+                               currentResultsCallback)
 
     local bindingTypeDropDownMenuItems = {"Soulbound", "Not Bound"}
     local bindingTypeDropDown = SIMS.FrameFactory.CreateStandardDropDown(
                                     queries, "TOP", dropDownXOffset, -285, 145,
                                     "Binding Type",
-                                    bindingTypeDropDownMenuItems, "Soulbound")
+                                    bindingTypeDropDownMenuItems, "Soulbound",
+                                    currentResultsCallback)
     local bindingTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                   "SoulBoundCheckBox", queries,
                                   {bindingTypeDropDown}, "Binding Type", "TOP",
-                                  buttonXOffset, -290)
+                                  buttonXOffset, -290, currentResultsCallback)
 
     local flagLabel = flags:CreateFontString(flags, _, "GameFontNormal")
     flagLabel:SetPoint("TOP", labelXOffset, -30)
@@ -485,29 +551,16 @@ local function CreateFunctionFrame_Create()
 
     local equipmentButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                 "EquipmentCheckBox", flags, nil, "Equipment",
-                                "TOP", -350, -50)
+                                "TOP", -350, -50, currentResultsCallback)
 
     local button = SIMS.FrameFactory.CreateStandardButton(CreateFunctionFrame,
                                                           "Query Bags",
                                                           "BOTTOM", 0, 15, nil,
                                                           nil, nil)
     button:SetScript("OnClick", function(self)
-        ParseBags()
+        ConfirmationFrame_Show()
         f:Hide()
     end)
-
-    -- Right side of Create function frame
-    local currentResults = CreateFrame("ScrollingMessageFrame", nil, f)
-    currentResults:SetSize(400, 400)
-    currentResults:SetPoint("TOP", 0, -5)
-    currentResults:SetFontObject(GameFontNormal)
-    currentResults:SetJustifyH("CENTER")
-
-    local currentResultLabel = currentResults:CreateFontString(currentResults,
-                                                               _,
-                                                               "GameFontNormal")
-    currentResultLabel:SetPoint("TOP", 185, -30)
-    currentResultLabel:SetText("Current results")
 
     CreateFunctionFrame:Hide()
 end
