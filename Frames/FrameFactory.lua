@@ -64,6 +64,32 @@ function FrameFactory.CreateStandardFrame(name, text)
     return f
 end
 
+function FrameFactory.CreateLargeFrame(name, text)
+    local f =
+        CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
+    f:SetPoint("CENTER")
+    f:SetSize(800, 500)
+    f:SetMovable(true)
+    f:SetClampedToScreen(true)
+    f:EnableKeyboard(true)
+    f.title = f:CreateFontString(nil, "OVERLAY")
+    f.title:SetFontObject("GameFontHighlight")
+    f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
+    f.title:SetText(text)
+
+    f:SetScript("OnMouseDown", function(self, button)
+        if button == "LeftButton" then self:StartMoving() end
+    end)
+    f:SetScript("OnKeyDown", function(self, key)
+        if (GetBindingFromClick(key) == "TOGGLEGAMEMENU") then
+            self:Hide()
+        end
+    end)
+    f:SetScript("OnMouseUp", f.StopMovingOrSizing)
+
+    return f
+end
+
 function FrameFactory.CreateStandardButton(parent, text, position, x, y, length,
                                            height, name)
     local button = nil
