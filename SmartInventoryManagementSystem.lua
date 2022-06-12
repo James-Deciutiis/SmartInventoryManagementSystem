@@ -1,5 +1,8 @@
 SLASH_SIMS1 = "/sims"
 
+local addonName, SIMS = ...
+_G[addonName] = SIMS
+
 flags = {}
 flags["Item Level"] = false
 flags["Equipment"] = false
@@ -53,109 +56,10 @@ itemTypeValueMapping["Glyph"] = 16
 itemTypeValueMapping["BattlePet"] = 17
 itemTypeValueMapping["WoWToken"] = 18
 
-function CreateStandardCheckButton(name, parent, boxes, text, position, x, y)
-    local CheckButton = CreateFrame("CheckButton", name, parent,
-                                    "ChatConfigCheckButtonTemplate")
-    CheckButton:SetPoint(position, x, y)
-    getglobal(CheckButton:GetName() .. "Text"):SetText(text)
-    CheckButton:SetScript("OnClick", function()
-        flags[text] = not flags[text]
-        for _, box in ipairs(boxes) do
-            if (flags[text]) then
-                box:Show()
-            else
-                box:Hide()
-            end
-        end
-    end)
-    return CheckButton
-end
-
-function CreateStandardEditBox(name, parent, position, x, y, length, width)
-    local editBox = CreateFrame("EditBox", name, parent,
-                                BackdropTemplateMixin and "BackdropTemplate")
-    editBox:SetPoint(position, x, y)
-    editBox:SetFontObject("ChatFontNormal")
-    editBox:SetMultiLine(false)
-    editBox:SetSize(length, width)
-    editBox:SetAutoFocus(false)
-    editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
-    editBox:SetTextInsets(15, 12, 12, 11)
-    editBox:SetScript("OnEscapePressed", function() editBox:ClearFocus() end)
-    editBox:Hide()
-
-    return editBox
-end
-
-function CreateStandardFrame(name, text)
-    local f =
-        CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
-    f:SetPoint("CENTER")
-    f:SetSize(400, 500)
-    f:SetMovable(true)
-    f:SetClampedToScreen(true)
-    f:EnableKeyboard(true)
-    f.title = f:CreateFontString(nil, "OVERLAY")
-    f.title:SetFontObject("GameFontHighlight")
-    f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
-    f.title:SetText(text)
-
-    f:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then self:StartMoving() end
-    end)
-    f:SetScript("OnKeyDown", function(self, key)
-        if (GetBindingFromClick(key) == "TOGGLEGAMEMENU") then
-            self:Hide()
-        end
-    end)
-    f:SetScript("OnMouseUp", f.StopMovingOrSizing)
-
-    return f
-end
-
-function CreateStandardButton(parent, text, position, x, y, length, height, name)
-    local button = nil
-    if (name ~= nil) then
-        button = CreateFrame("Button", name, parent, "GameMenuButtonTemplate")
-    else
-        button = CreateFrame("Button", nil, parent, "GameMenuButtonTemplate")
-    end
-    button:SetPoint(position, x, y)
-    if (length ~= nil and height ~= nil) then button:SetSize(length, height) end
-    button:SetText(text)
-    return button
-end
-
-function CreateStandardDropDown(parent, position, x, y, width, text, menuItems,
-                                target)
-    local dropDown = CreateFrame("FRAME", nil, parent, "UIDropDownMenuTemplate")
-    dropDown:SetPoint(position, x, y)
-    dropDown:Hide()
-    UIDropDownMenu_SetWidth(dropDown, width)
-    UIDropDownMenu_SetText(dropDown, text)
-    UIDropDownMenu_Initialize(dropDown, function(self, level, menuList)
-        local info = UIDropDownMenu_CreateInfo()
-        info.func = self.SetValue
-        for key, value in ipairs(menuItems) do
-
-            info.text, info.arg1, info.checked = value, value, value ==
-                                                     dropDownValues[target]
-            UIDropDownMenu_AddButton(info, level)
-        end
-    end)
-
-    function dropDown:SetValue(newValue)
-        dropDownValues[target] = newValue
-        UIDropDownMenu_SetText(dropDown, newValue)
-        CloseDropDownMenus()
-    end
-
-    return dropDown
-end
-
 function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     if not ConfirmationFrame then
-        local f = CreateStandardFrame("ConfirmationFrame", "Confirm")
+        local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmationFrame",
+                                                        "Confirm")
         f:EnableMouse(true)
         f:EnableMouseWheel(true)
 
@@ -208,9 +112,9 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
             MainFrame_Show()
         end
 
-        local sellButton = CreateStandardButton(ConfirmationFrame, "Sell",
-                                                "BOTTOM", 0, 10, 100, 25,
-                                                "SellButton")
+        local sellButton = SIMS.FrameFactory.CreateStandardButton(
+                               ConfirmationFrame, "Sell", "BOTTOM", 0, 10, 100,
+                               25, "SellButton")
         sellButton:RegisterEvent("MERCHANT_SHOW")
         sellButton:RegisterEvent("MERCHANT_CLOSED")
         sellButton:SetEnabled(false)
@@ -223,8 +127,9 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
         end)
         f.SellButton = sellButton
 
-        local mailButton = CreateStandardButton(ConfirmationFrame, "Mail",
-                                                "BOTTOM", -70, 40, 100, 25)
+        local mailButton = SIMS.FrameFactory.CreateStandardButton(
+                               ConfirmationFrame, "Mail", "BOTTOM", -70, 40,
+                               100, 25)
 
         f.MailButton = mailButton
         mailButton:RegisterEvent("MAIL_SHOW")
@@ -238,8 +143,9 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
             end
         end)
 
-        local bankButton = CreateStandardButton(ConfirmationFrame, "Deposit",
-                                                "BOTTOM", 70, 40, 100, 25)
+        local bankButton = SIMS.FrameFactory.CreateStandardButton(
+                               ConfirmationFrame, "Deposit", "BOTTOM", 70, 40,
+                               100, 25)
 
         f.BankButton = bankButton
         bankButton:RegisterEvent("BANKFRAME_OPENED")
@@ -253,14 +159,14 @@ function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
             end
         end)
 
-        local destroyButton = CreateStandardButton(ConfirmationFrame, "Destroy",
-                                                   "BOTTOMLEFT", 20, 10, 100,
-                                                   25, "DestroyButton")
+        local destroyButton = SIMS.FrameFactory.CreateStandardButton(
+                                  ConfirmationFrame, "Destroy", "BOTTOMLEFT",
+                                  20, 10, 100, 25, "DestroyButton")
         f.DestroyButton = destroyButton
 
-        local cancelButton = CreateStandardButton(ConfirmationFrame, "Cancel",
-                                                  "BOTTOMRIGHT", -20, 10, 100,
-                                                  25, "CancelButton")
+        local cancelButton = SIMS.FrameFactory.CreateStandardButton(
+                                 ConfirmationFrame, "Cancel", "BOTTOMRIGHT",
+                                 -20, 10, 100, 25, "CancelButton")
         cancelButton:SetScript("OnClick", cancelCallback)
 
         f:Show()
@@ -468,7 +374,9 @@ function MainFrame_Show()
 end
 
 local function MainFrame_Create()
-    local f = CreateStandardFrame("MainFrame", "S.I.M.S")
+    if (MainFrame) then return end
+
+    local f = SIMS.FrameFactory.CreateStandardFrame("MainFrame", "S.I.M.S")
 
     local queries = CreateFrame("ScrollingMessageFrame", nil, f)
     queries:SetSize(400, 400)
@@ -486,51 +394,59 @@ local function MainFrame_Create()
     flags:SetFontObject(GameFontNormal)
     flags:SetJustifyH("CENTER")
 
-    local itemNameEditBox = CreateStandardEditBox("ItemNameEditBox", queries,
-                                                  "TOP", 65, -45, 155, 40)
-    local itemNameButton = CreateStandardCheckButton("ItemNameCheckBox",
-                                                     queries, {itemNameEditBox},
-                                                     "Item Name", "TOP", -150,
-                                                     -50)
+    local itemNameEditBox = SIMS.FrameFactory.CreateStandardEditBox(
+                                "ItemNameEditBox", queries, "TOP", 65, -45, 155,
+                                40)
+    local itemNameButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                               "ItemNameCheckBox", queries, {itemNameEditBox},
+                               "Item Name", "TOP", -150, -50)
 
     local iLvlDropDownMenuItems = {"=", "<", ">", "<=", ">=", "!="}
-    local iLvlDropDown = CreateStandardDropDown(queries, "TOP", 27, -90, 70,
-                                                "Operator",
-                                                iLvlDropDownMenuItems,
-                                                "Item Level")
-    local iLvlEditBox = CreateStandardEditBox("ItemLevelEditBox", queries,
-                                              "TOP", 115, -80, 77.5, 40)
-    local iLvlButton = CreateStandardCheckButton("ItemLevelCheckBox", queries,
-                                                 {iLvlEditBox, iLvlDropDown},
-                                                 "Item Level", "TOP", -150, -90)
+    local iLvlDropDown = SIMS.FrameFactory.CreateStandardDropDown(queries,
+                                                                  "TOP", 27,
+                                                                  -90, 70,
+                                                                  "Operator",
+                                                                  iLvlDropDownMenuItems,
+                                                                  "Item Level")
+    local iLvlEditBox = SIMS.FrameFactory.CreateStandardEditBox(
+                            "ItemLevelEditBox", queries, "TOP", 115, -80, 77.5,
+                            40)
+    local iLvlButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                           "ItemLevelCheckBox", queries,
+                           {iLvlEditBox, iLvlDropDown}, "Item Level", "TOP",
+                           -150, -90)
 
     local expansionDropDownMenuItems = {
         "Classic", "Burning Crusade", "Wrath of the Lich King", "Cataclysm",
         "Mists of Pandaria", "Warlords of Draenor", "Legion",
         "Battle for Azeroth", "Shadowlands"
     }
-    local expansionDropDown = CreateStandardDropDown(queries, "TOP", 65, -125,
-                                                     145, "Expansion",
-                                                     expansionDropDownMenuItems,
-                                                     "Expansion")
-    local expansionButton = CreateStandardCheckButton("ExpansionCheckBox",
-                                                      queries,
-                                                      {expansionDropDown},
-                                                      "Expansion", "TOP", -150,
-                                                      -130)
+    local expansionDropDown = SIMS.FrameFactory.CreateStandardDropDown(queries,
+                                                                       "TOP",
+                                                                       65, -125,
+                                                                       145,
+                                                                       "Expansion",
+                                                                       expansionDropDownMenuItems,
+                                                                       "Expansion")
+    local expansionButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                                "ExpansionCheckBox", queries,
+                                {expansionDropDown}, "Expansion", "TOP", -150,
+                                -130)
     local qualityDropDownMenuItems = {
         ITEM_QUALITY0_DESC, ITEM_QUALITY1_DESC, ITEM_QUALITY2_DESC,
         ITEM_QUALITY3_DESC, ITEM_QUALITY4_DESC, ITEM_QUALITY5_DESC,
         ITEM_QUALITY6_DESC, ITEM_QUALITY7_DESC, ITEM_QUALITY8_DESC
     }
 
-    local qualityDropDown = CreateStandardDropDown(queries, "TOP", 65, -165,
-                                                   145, "Quality",
-                                                   qualityDropDownMenuItems,
-                                                   "Quality")
-    local qualityButton = CreateStandardCheckButton("QualityCheckBox", queries,
-                                                    {qualityDropDown},
-                                                    "Quality", "TOP", -150, -170)
+    local qualityDropDown = SIMS.FrameFactory.CreateStandardDropDown(queries,
+                                                                     "TOP", 65,
+                                                                     -165, 145,
+                                                                     "Quality",
+                                                                     qualityDropDownMenuItems,
+                                                                     "Quality")
+    local qualityButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                              "QualityCheckBox", queries, {qualityDropDown},
+                              "Quality", "TOP", -150, -170)
 
     local itemLocationDropDownMenuItems = {
         INVTYPE_HEAD, INVTYPE_NECK, INVTYPE_SHOULDER, INVTYPE_BODY,
@@ -542,15 +458,15 @@ local function MainFrame_Create()
         INVTYPE_WEAPONMAINHAND
     }
 
-    local itemLocationDropDown = CreateStandardDropDown(queries, "TOP", 65,
-                                                        -205, 145,
-                                                        "Item Location",
-                                                        itemLocationDropDownMenuItems,
-                                                        "Item Location")
-    local itemLocationButton = CreateStandardCheckButton("ItemTypeCheckButton",
-                                                         queries, {
-        itemLocationDropDown
-    }, "Item Location", "TOP", -150, -210)
+    local itemLocationDropDown = SIMS.FrameFactory.CreateStandardDropDown(
+                                     queries, "TOP", 65, -205, 145,
+                                     "Item Location",
+                                     itemLocationDropDownMenuItems,
+                                     "Item Location")
+    local itemLocationButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                                   "ItemTypeCheckButton", queries,
+                                   {itemLocationDropDown}, "Item Location",
+                                   "TOP", -150, -210)
 
     local itemTypeDropDownMenuItems = {
         "Armor", "Consumable", "Container", "Gem", "Key", "Miscellaneous",
@@ -558,38 +474,39 @@ local function MainFrame_Create()
         "Weapon"
     }
 
-    local itemTypeDropDown = CreateStandardDropDown(queries, "TOP", 65, -245,
-                                                    145, "Item Type",
-                                                    itemTypeDropDownMenuItems,
-                                                    "Item Type")
+    local itemTypeDropDown = SIMS.FrameFactory.CreateStandardDropDown(queries,
+                                                                      "TOP", 65,
+                                                                      -245, 145,
+                                                                      "Item Type",
+                                                                      itemTypeDropDownMenuItems,
+                                                                      "Item Type")
 
-    local itemTypeButton = CreateStandardCheckButton("ItemTypeCheckBox",
-                                                     queries,
-                                                     {itemTypeDropDown},
-                                                     "Item Type", "TOP", -150,
-                                                     -250)
+    local itemTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                               "ItemTypeCheckBox", queries, {itemTypeDropDown},
+                               "Item Type", "TOP", -150, -250)
 
     local bindingTypeDropDownMenuItems = {"Soulbound", "Not Bound"}
-    local bindingTypeDropDown = CreateStandardDropDown(queries, "TOP", 65, -285,
-                                                       145, "Binding Type",
-                                                       bindingTypeDropDownMenuItems,
-                                                       "Soulbound")
-    local bindingTypeButton = CreateStandardCheckButton("SoulBoundCheckBox",
-                                                        queries,
-                                                        {bindingTypeDropDown},
-                                                        "Binding Type", "TOP",
-                                                        -150, -290)
+    local bindingTypeDropDown = SIMS.FrameFactory.CreateStandardDropDown(
+                                    queries, "TOP", 65, -285, 145,
+                                    "Binding Type",
+                                    bindingTypeDropDownMenuItems, "Soulbound")
+    local bindingTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                                  "SoulBoundCheckBox", queries,
+                                  {bindingTypeDropDown}, "Binding Type", "TOP",
+                                  -150, -290)
 
     local flagLabel = flags:CreateFontString(flags, _, "GameFontNormal")
     flagLabel:SetPoint("TOP", -150, -30)
     flagLabel:SetText("Flags")
 
-    local equipmentButton = CreateStandardCheckButton("EquipmentCheckBox",
-                                                      flags, nil, "Equipment",
-                                                      "TOP", -150, -50)
+    local equipmentButton = SIMS.FrameFactory.CreateStandardCheckButton(
+                                "EquipmentCheckBox", flags, nil, "Equipment",
+                                "TOP", -150, -50)
 
-    local button = CreateStandardButton(MainFrame, "Query Bags", "BOTTOM", 0,
-                                        15, nil, nil, nil)
+    local button = SIMS.FrameFactory.CreateStandardButton(MainFrame,
+                                                          "Query Bags",
+                                                          "BOTTOM", 0, 15, nil,
+                                                          nil, nil)
     button:SetScript("OnClick", function(self)
         ParseBags()
         f:Hide()
@@ -612,11 +529,18 @@ end
 
 local function main() MainFrame_Create() end
 
+local core, events = CreateFrame('Frame', addonName .. 'CoreFrame'), {}
+
+core:RegisterEvent('ADDON_LOADED')
+function events:ADDON_LOADED(aName, ...) main() end
+
+core:SetScript("OnEvent",
+               function(self, event, ...) events[event](self, ...); end)
+
 local function SimsHandler()
     scanBags()
     MainFrame_Show()
 end
 
 main()
-
 SlashCmdList["SIMS"] = SimsHandler;
