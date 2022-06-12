@@ -1,7 +1,15 @@
 SLASH_SIMS1 = "/sims"
 
 local addonName, SIMS = ...
-_G[addonName] = SIMS
+local Main = {}
+SIMS.Main = Main
+
+local function SimsHandler()
+    scanBags()
+    MainFrame_Show()
+end
+
+SlashCmdList["SIMS"] = SimsHandler;
 
 function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     if not ConfirmationFrame then
@@ -475,20 +483,4 @@ local function MainFrame_Create()
     MainFrame:Hide()
 end
 
-local function main() MainFrame_Create() end
-
-local core, events = CreateFrame('Frame', addonName .. 'CoreFrame'), {}
-
-core:RegisterEvent('ADDON_LOADED')
-function events:ADDON_LOADED(aName, ...) main() end
-
-core:SetScript("OnEvent",
-               function(self, event, ...) events[event](self, ...); end)
-
-local function SimsHandler()
-    scanBags()
-    MainFrame_Show()
-end
-
-main()
-SlashCmdList["SIMS"] = SimsHandler;
+function Main.initialize() MainFrame_Create() end
