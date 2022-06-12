@@ -4,5 +4,6 @@
 ## Author: JamesDeciutiis
 ## Version: 0.0.1
 
+Mappings.lua
 Frames\FrameFactory.lua
 SmartInventoryManagementSystem.lua

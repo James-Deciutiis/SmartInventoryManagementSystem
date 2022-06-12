@@ -1,0 +1,60 @@
+local addonName, SIMS = ...
+SIMS.mappings = {}
+
+local flags = {}
+SIMS.mappings.flags = flags
+flags["Item Level"] = false
+flags["Equipment"] = false
+flags["Item Name"] = false
+flags["Binding Type"] = false
+flags["Expansion"] = false
+flags["Item Location"] = false
+flags["Item Type"] = false
+
+local dropDownValues = {}
+SIMS.mappings.dropDownValues = dropDownValues
+dropDownValues["Expansion"] = nil
+dropDownValues["Item Location"] = nil
+dropDownValues["Item Type"] = nil
+dropDownValues["Item Level"] = nil
+dropDownValues["Soulbound"] = nil
+
+local expansionValueMapping = {}
+SIMS.mappings.expansionValueMapping = expansionValueMapping
+expansionValueMapping["Classic"] = 0
+expansionValueMapping["Burning Crusade"] = 1
+expansionValueMapping["Wrath of the Lich King"] = 2
+expansionValueMapping["Cataclysm"] = 3
+expansionValueMapping["Mists of Pandaria"] = 4
+expansionValueMapping["Warlords of Draenor"] = 5
+expansionValueMapping["Legion"] = 6
+expansionValueMapping["Battle for Azeroth"] = 7
+expansionValueMapping["Shadowlands"] = 8
+
+local qualityValueMapping = {}
+SIMS.mappings.qualityValueMapping = qualityValueMapping
+qualityValueMapping["Poor"] = 0
+qualityValueMapping["Common"] = 1
+qualityValueMapping["Uncommon"] = 2
+qualityValueMapping["Rare"] = 3
+qualityValueMapping["Epic"] = 4
+qualityValueMapping["Legendary"] = 5
+qualityValueMapping["Artifact"] = 6
+qualityValueMapping["Heirloom"] = 7
+qualityValueMapping["WoW Token"] = 8
+
+local itemTypeValueMapping = {}
+SIMS.mappings.itemTypeValueMapping = itemTypeValueMapping
+itemTypeValueMapping["Consumable"] = 0
+itemTypeValueMapping["Container"] = 1
+itemTypeValueMapping["Weapon"] = 2
+itemTypeValueMapping["Gem"] = 3
+itemTypeValueMapping["Armor"] = 4
+itemTypeValueMapping["Tradegoods"] = 7
+itemTypeValueMapping["ItemEnhancement"] = 8
+itemTypeValueMapping["Recipe"] = 9
+itemTypeValueMapping["Questitem"] = 12
+itemTypeValueMapping["Miscellaneous"] = 15
+itemTypeValueMapping["Glyph"] = 16
+itemTypeValueMapping["BattlePet"] = 17
+itemTypeValueMapping["WoWToken"] = 18

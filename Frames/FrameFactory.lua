@@ -9,9 +9,9 @@ function FrameFactory.CreateStandardCheckButton(name, parent, boxes, text,
     CheckButton:SetPoint(position, x, y)
     getglobal(CheckButton:GetName() .. "Text"):SetText(text)
     CheckButton:SetScript("OnClick", function()
-        flags[text] = not flags[text]
+        SIMS.mappings.flags[text] = not SIMS.mappings.flags[text]
         for _, box in ipairs(boxes) do
-            if (flags[text]) then
+            if (SIMS.mappings.flags[text]) then
                 box:Show()
             else
                 box:Hide()
@@ -91,13 +91,14 @@ function FrameFactory.CreateStandardDropDown(parent, position, x, y, width,
         for key, value in ipairs(menuItems) do
 
             info.text, info.arg1, info.checked = value, value, value ==
-                                                     dropDownValues[target]
+                                                     SIMS.mappings
+                                                         .dropDownValues[target]
             UIDropDownMenu_AddButton(info, level)
         end
     end)
 
     function dropDown:SetValue(newValue)
-        dropDownValues[target] = newValue
+        SIMS.mappings.dropDownValues[target] = newValue
         UIDropDownMenu_SetText(dropDown, newValue)
         CloseDropDownMenus()
     end

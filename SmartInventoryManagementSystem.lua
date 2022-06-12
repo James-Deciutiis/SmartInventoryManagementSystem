@@ -3,59 +3,6 @@ SLASH_SIMS1 = "/sims"
 local addonName, SIMS = ...
 _G[addonName] = SIMS
 
-flags = {}
-flags["Item Level"] = false
-flags["Equipment"] = false
-flags["Item Name"] = false
-flags["Binding Type"] = false
-flags["Expansion"] = false
-flags["Item Location"] = false
-flags["Item Type"] = false
-
-dropDownValues = {}
-dropDownValues["Expansion"] = nil
-dropDownValues["Item Location"] = nil
-dropDownValues["Item Type"] = nil
-dropDownValues["Item Level"] = nil
-dropDownValues["Soulbound"] = nil
-
-expansionValueMapping = {}
-expansionValueMapping["Classic"] = 0;
-expansionValueMapping["Burning Crusade"] = 1
-expansionValueMapping["Wrath of the Lich King"] = 2
-expansionValueMapping["Cataclysm"] = 3
-expansionValueMapping["Mists of Pandaria"] = 4
-expansionValueMapping["Warlords of Draenor"] = 5
-expansionValueMapping["Legion"] = 6
-expansionValueMapping["Battle for Azeroth"] = 7
-expansionValueMapping["Shadowlands"] = 8
-
-qualityValueMapping = {}
-qualityValueMapping["Poor"] = 0
-qualityValueMapping["Common"] = 1
-qualityValueMapping["Uncommon"] = 2
-qualityValueMapping["Rare"] = 3
-qualityValueMapping["Epic"] = 4
-qualityValueMapping["Legendary"] = 5
-qualityValueMapping["Artifact"] = 6
-qualityValueMapping["Heirloom"] = 7
-qualityValueMapping["WoW Token"] = 8
-
-itemTypeValueMapping = {}
-itemTypeValueMapping["Consumable"] = 0
-itemTypeValueMapping["Container"] = 1
-itemTypeValueMapping["Weapon"] = 2
-itemTypeValueMapping["Gem"] = 3
-itemTypeValueMapping["Armor"] = 4
-itemTypeValueMapping["Tradegoods"] = 7
-itemTypeValueMapping["ItemEnhancement"] = 8
-itemTypeValueMapping["Recipe"] = 9
-itemTypeValueMapping["Questitem"] = 12
-itemTypeValueMapping["Miscellaneous"] = 15
-itemTypeValueMapping["Glyph"] = 16
-itemTypeValueMapping["BattlePet"] = 17
-itemTypeValueMapping["WoWToken"] = 18
-
 function ConfirmationFrame_Show(itemLinks, totalSellPrice, itemCoords)
     if not ConfirmationFrame then
         local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmationFrame",
@@ -264,13 +211,13 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
     local isHit = true
-    if (flags["Item Name"] and isHit and itemName) then
+    if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
         print(itemName)
         if (not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
             isHit = false
         end
     end
-    if (flags["Item Level"] and isHit) then
+    if (SIMS.mappings.flags["Item Level"] and isHit) then
         local operators = {
             ["="] = function()
                 return tonumber(ItemLevelEditBox:GetText()) == itemLevel
@@ -296,39 +243,40 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
             end
         }
 
-        if (operators[dropDownValues["Item Level"] or "="]() == false) then
-            isHit = false
-        end
+        if (operators[SIMS.mappings.dropDownValues["Item Level"] or "="]() ==
+            false) then isHit = false end
     end
-    if (flags["Equipment"] and isHit) then
+    if (SIMS.mappings.flags["Equipment"] and isHit) then
         if (itemType ~= "Armor" and itemType ~= "Weapon") then
             isHit = false
         end
     end
-    if (flags["Binding Type"] and isHit) then
-        if (dropDownValues["Soulbound"] == "Not Bound" and isBound ~= false) then
+    if (SIMS.mappings.flags["Binding Type"] and isHit) then
+        if (SIMS.mappings.dropDownValues["Soulbound"] == "Not Bound" and isBound ~=
+            false) then
             isHit = false
-        elseif (dropDownValues["Soulbound"] == "Soulbound" and isBound ~= true) then
-            isHit = false
-        end
-    end
-    if (flags["Expansion"] and isHit) then
-        if (expansionValueMapping[dropDownValues["Expansion"]] ~= expacID) then
+        elseif (SIMS.mappings.dropDownValues["Soulbound"] == "Soulbound" and
+            isBound ~= true) then
             isHit = false
         end
     end
-    if (flags["Quality"] and isHit) then
-        if (qualityValueMapping[dropDownValues["Quality"]] ~= itemQuality) then
+    if (SIMS.mappings.flags["Expansion"] and isHit) then
+        if (SIMS.mappings.expansionValueMapping[SIMS.mappings.dropDownValues["Expansion"]] ~=
+            expacID) then isHit = false end
+    end
+    if (SIMS.mappings.flags["Quality"] and isHit) then
+        if (SIMS.mappings.qualityValueMapping[SIMS.mappings.dropDownValues["Quality"]] ~=
+            itemQuality) then isHit = false end
+    end
+    if (SIMS.mappings.flags["Item Location"] and isHit) then
+        if (SIMS.mappings.dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
             isHit = false
         end
     end
-    if (flags["Item Location"] and isHit) then
-        if (dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
+    if (SIMS.mappings.flags["Item Type"] and isHit) then
+        if (SIMS.mappings.dropDownValues["Item Type"] ~= itemType) then
             isHit = false
         end
-    end
-    if (flags["Item Type"] and isHit) then
-        if (dropDownValues["Item Type"] ~= itemType) then isHit = false end
     end
     if (isHit) then
         local coords = {}
