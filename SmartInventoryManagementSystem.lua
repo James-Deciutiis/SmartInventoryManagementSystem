@@ -548,7 +548,7 @@ local function CreateFunctionFrame_Create()
     flagLabel:SetText("Flags")
 
     local equipmentButton = SIMS.FrameFactory.CreateStandardCheckButton(
-                                "EquipmentCheckBox", flags, nil, "Equipment",
+                                "EquipmentCheckBox", flags, {}, "Equipment",
                                 "TOP", -350, -50, currentResultsCallback)
 
     local button = SIMS.FrameFactory.CreateStandardButton(CreateFunctionFrame,
