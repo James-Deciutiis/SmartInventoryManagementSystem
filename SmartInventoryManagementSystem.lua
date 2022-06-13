@@ -131,7 +131,7 @@ function ParseBags()
     return results
 end
 
-local function MainFrame_Create()
+function MainFrame_Create()
     if (MainFrame) then return end
 
     local f = SIMS.FrameFactory.CreateStandardFrame("MainFrame", "S.I.M.S")
@@ -162,49 +162,23 @@ local function MainFrame_Create()
     MainFrame:Hide()
 end
 
-function ConfirmationFrame_Show()
-    local filterResults = ParseBags()
-    itemLinks = filterResults.filteredItems
-    totalSellPrice = filterResults.totalSellPrice
-    itemCoords = filterResults.itemCoords
+function ConfirmationFrame_Create()
     if not ConfirmationFrame then
         local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmationFrame",
                                                         "Confirm")
         f:EnableMouse(true)
         f:EnableMouseWheel(true)
 
-        local MessageFrame = CreateFrame("ScrollingMessageFrame",
-                                         "ConfirmationMessageFrame", f)
-        MessageFrame:SetSize(350, 300)
-        MessageFrame:SetPoint("CENTER", 0, 30)
-        MessageFrame:SetJustifyH("CENTER")
-        MessageFrame:SetFading(false)
-        MessageFrame:EnableMouseWheel(true)
-        MessageFrame:SetHyperlinksEnabled(true)
-        MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
-        MessageFrame:SetFontObject(GameFontNormal)
-        MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
-        MessageFrame:HookScript('OnHyperlinkEnter', function(self, link, text)
-            GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-            GameTooltip:SetHyperlink(link)
-            GameTooltip:Show()
-        end)
-        MessageFrame:HookScript('OnHyperlinkLeave', function(self, link, text)
-            GameTooltip:Hide()
-        end)
+        local MessageFrame = SIMS.FrameFactory.CreateScrollingMessageFrame(f, 0,
+                                                                           30,
+                                                                           350,
+                                                                           300)
         f.MessageFrame = MessageFrame
 
         local resultsLabel = ConfirmationFrame:CreateFontString(
                                  ConfirmationFrame, _, "GameFontNormal")
         resultsLabel:SetPoint("TOP", -100, -40)
         resultsLabel:SetText("Results")
-
-        local scrollBar = CreateFrame("Slider", "ConfirmationFrameScrollBar", f,
-                                      "UIPanelScrollBarTemplate")
-        scrollBar:SetPoint("RIGHT", f, "RIGHT", -10, 30)
-        scrollBar:SetSize(30, 280)
-        f.scrollBar = scrollBar
-
         local total = CreateFrame("ScrollingMessageFrame",
                                   "TotalSellPriceMessageFrame", f)
         total:SetSize(200, 200)
@@ -281,6 +255,15 @@ function ConfirmationFrame_Show()
 
         f:Show()
     end
+end
+
+function ConfirmationFrame_Show()
+    if not ConfirmationFrame then ConfirmationFrame_Create() end
+
+    local filterResults = ParseBags()
+    itemLinks = filterResults.filteredItems
+    totalSellPrice = filterResults.totalSellPrice
+    itemCoords = filterResults.itemCoords
 
     ConfirmationFrame.SellButton:SetScript("OnClick", function(self)
         for key, value in ipairs(itemCoords) do
@@ -335,19 +318,20 @@ function ConfirmationFrame_Show()
     local bottomPadding = 25
     local visualMax = length < bottomPadding and 0 or length - bottomPadding
     if (visualMax == 0) then
-        ConfirmationFrame.scrollBar:Hide()
+        ConfirmationFrame.MessageFrame.scrollBar:Hide()
     else
-        ConfirmationFrame.scrollBar:Show()
+        ConfirmationFrame.MessageFrame.scrollBar:Show()
     end
 
-    ConfirmationFrame.scrollBar:SetMinMaxValues(0, visualMax)
-    ConfirmationFrame.scrollBar:SetValue(0)
+    ConfirmationFrame.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
+    ConfirmationFrame.MessageFrame.scrollBar:SetValue(0)
     ConfirmationFrame.MessageFrame:SetScript("OnMouseWheel",
                                              function(self, delta)
         if ((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
             delta > 0) then
             self:ScrollByAmount(-delta * 3)
-            ConfirmationFrame.scrollBar:SetValue(self:GetScrollOffset())
+            ConfirmationFrame.MessageFrame.scrollBar:SetValue(
+                self:GetScrollOffset())
         end
     end)
 
@@ -369,39 +353,30 @@ local function CreateFunctionFrame_Create()
     currentResults:SetSize(400, 400)
     currentResults:SetPoint("TOP", 0, -5)
     currentResults:SetFontObject(GameFontNormal)
-    currentResults:SetJustifyH("CENTER")
+
+    local MessageFrame = SIMS.FrameFactory.CreateScrollingMessageFrame(
+                             currentResults, 185, 0, 350, 300)
+    currentResults.MessageFrame = MessageFrame
 
     local currentResultLabel = currentResults:CreateFontString(currentResults,
                                                                _,
                                                                "GameFontNormal")
     currentResultLabel:SetPoint("TOP", 185, -30)
     currentResultLabel:SetText("Current results")
-    currentResults:EnableMouse(true)
-    currentResults:EnableMouseWheel(true)
-
-    local MessageFrame = CreateFrame("ScrollingMessageFrame",
-                                     "ConfirmationMessageFrame", currentResults)
-    MessageFrame:SetSize(350, 300)
-    MessageFrame:SetPoint("CENTER", 185, 0)
-    MessageFrame:SetJustifyH("CENTER")
-    MessageFrame:SetFading(false)
-    MessageFrame:EnableMouseWheel(true)
-    MessageFrame:SetHyperlinksEnabled(true)
-    MessageFrame:SetInsertMode(SCROLLING_MESSAGE_FRAME_INSERT_MODE_TOP)
-    MessageFrame:SetFontObject(GameFontNormal)
-    MessageFrame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
-    MessageFrame:HookScript('OnHyperlinkEnter', function(self, link, text)
-        GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-        GameTooltip:SetHyperlink(link)
-        GameTooltip:Show()
-    end)
-    MessageFrame:HookScript('OnHyperlinkLeave',
-                            function(self, link, text) GameTooltip:Hide() end)
-    currentResults.MessageFrame = MessageFrame
+    local total = CreateFrame("ScrollingMessageFrame",
+                              "TotalSellPriceMessageFrame", currentResults)
+    total:SetSize(200, 200)
+    total:SetPoint("BOTTOM", 185, 10)
+    total:SetFontObject(GameFontNormal)
+    total:SetJustifyH("LEFT")
+    total:SetFading(false)
+    total:SetMaxLines(100)
+    currentResults.TotalFrame = total
 
     local currentResultsCallback = function()
         local parseResults = ParseBags()
         local itemLinks = parseResults.filteredItems
+        local totalSellPrice = parseResults.totalSellPrice
         local length = 0
         for key, value in ipairs(itemLinks) do length = length + 1 end
 
@@ -410,6 +385,29 @@ local function CreateFunctionFrame_Create()
         for key, value in ipairs(itemLinks) do
             currentResults.MessageFrame:AddMessage(value)
         end
+        currentResults.TotalFrame:Clear()
+        currentResults.TotalFrame:AddMessage("Total Sell Price")
+        currentResults.TotalFrame:AddMessage(
+            GetCoinTextureString(totalSellPrice))
+        local bottomPadding = 25
+        local visualMax = length < bottomPadding and 0 or length - bottomPadding
+        if (visualMax == 0) then
+            currentResults.MessageFrame.scrollBar:Hide()
+        else
+            currentResults.MessageFrame.scrollBar:Show()
+        end
+
+        currentResults.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
+        currentResults.MessageFrame.scrollBar:SetValue(0)
+        currentResults.MessageFrame:SetScript("OnMouseWheel",
+                                              function(self, delta)
+            if ((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
+                delta > 0) then
+                self:ScrollByAmount(-delta * 3)
+                currentResults.MessageFrame.scrollBar:SetValue(
+                    self:GetScrollOffset())
+            end
+        end)
     end
 
     -- left side of Create function frame
@@ -562,6 +560,7 @@ local function CreateFunctionFrame_Create()
         f:Hide()
     end)
 
+    currentResultsCallback()
     CreateFunctionFrame:Hide()
 end
 

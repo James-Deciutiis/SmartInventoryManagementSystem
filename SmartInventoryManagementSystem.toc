@@ -7,4 +7,5 @@
 Mappings.lua
 Core.lua
 Frames\FrameFactory.lua
+Frames\ScrollingMessageFrame.lua
 SmartInventoryManagementSystem.lua
