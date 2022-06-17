@@ -3,6 +3,7 @@
 ## Notes: Manage items more efficiently
 ## Author: JamesDeciutiis
 ## Version: 0.0.1
+## SavedVariablesPerCharacter: SavedFunctions
 
 Mappings.lua
 Core.lua

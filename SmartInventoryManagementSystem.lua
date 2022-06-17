@@ -4,10 +4,7 @@ local addonName, SIMS = ...
 local Main = {}
 SIMS.Main = Main
 
-local function SimsHandler()
-    scanBags()
-    MainFrame_Show()
-end
+local function SimsHandler() MainFrame_Show() end
 
 SlashCmdList["SIMS"] = SimsHandler;
 
@@ -152,7 +149,9 @@ function MainFrame_Create()
     MainFrame:RegisterEvent("BANKFRAME_OPENED")
     MainFrame:RegisterEvent("BANKFRAME_CLOSED")
     MainFrame:SetScript("OnEvent", function(self, event)
-        if (event.find(event, "SHOW")) then
+        if (event.find(event, "SHOW") and
+            (not ConfirmationFrame:IsVisible() and
+                not CreateFunctionFrame:IsVisible())) then
             MainFrame_Show()
         else
             MainFrame:Hide()
@@ -551,16 +550,24 @@ local function CreateFunctionFrame_Create()
                                 "EquipmentCheckBox", flags, {}, "Equipment",
                                 "TOP", -350, -50, currentResultsCallback)
 
-    local button = SIMS.FrameFactory.CreateStandardButton(CreateFunctionFrame,
-                                                          "Query Bags",
-                                                          "BOTTOM", 0, 15, nil,
-                                                          nil, nil)
-    button:SetScript("OnClick", function(self)
-        ConfirmationFrame_Show()
+    local createButton = SIMS.FrameFactory.CreateStandardButton(
+                             CreateFunctionFrame, "Create Function", "BOTTOM",
+                             0, 15, nil, nil, nil)
+    createButton:SetScript("OnClick", function(self)
+        local fn = {}
+        local flags = {}
+        for key, val in pairs(SIMS.mappings.flags) do flags.key = val end
+        for key, val in pairs(SIMS.mappings.dropDownValues) do
+            dropDownValues.key = val
+        end
+
+        -- TODO: add mapping for current query editBox values
+
+        fn.flags = flags
         f:Hide()
     end)
 
-    currentResultsCallback()
+    f:SetScript("OnShow", function(self) currentResultsCallback() end)
     CreateFunctionFrame:Hide()
 end
 
@@ -574,8 +581,10 @@ end
 
 function MainFrame_Show()
     if not MainFrame then MainFrame_Create() end
-
     MainFrame:Show()
 end
 
-function Main.initialize() MainFrame_Create() end
+function Main.initialize()
+    if SavedFunctions == nil then SavedFunctions = {} end
+    MainFrame_Create()
+end
