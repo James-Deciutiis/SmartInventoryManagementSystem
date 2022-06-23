@@ -8,6 +8,8 @@ local function SimsHandler() MainFrame_Show() end
 
 SlashCmdList["SIMS"] = SimsHandler;
 
+function isFrameVisible(frame) return frame and frame:IsVisible() end
+
 function scanBags()
     for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
         for slot = 1, GetContainerNumSlots(currentBag) do
@@ -23,34 +25,28 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         GetContainerItemInfo(currentBag, slot)
     local isHit = true
     if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
-        if (not string.find(itemName:lower(), ItemNameEditBox:GetText():lower())) then
+        if (not string.find(itemName:lower(),
+                            SIMS.mappings.editBoxValues["Item Name"]:lower())) then
             isHit = false
         end
     end
     if (SIMS.mappings.flags["Item Level"] and isHit) then
+        local ilvl = SIMS.mappings.editBoxValues["Item Level"]
         local operators = {
-            ["="] = function()
-                return tonumber(ItemLevelEditBox:GetText()) == itemLevel
-            end,
+            ["="] = function() return tonumber(ilvl) == itemLevel end,
             ["<"] = function()
-                return itemLevel and itemLevel <
-                           tonumber(ItemLevelEditBox:GetText()) or false
+                return itemLevel and itemLevel < tonumber(ilvl) or false
             end,
             [">"] = function()
-                return itemLevel and itemLevel >
-                           tonumber(ItemLevelEditBox:GetText()) or false
+                return itemLevel and itemLevel > tonumber(ilvl) or false
             end,
             ["<="] = function()
-                return itemLevel and itemLevel <=
-                           tonumber(ItemLevelEditBox:GetText()) or false
+                return itemLevel and itemLevel <= tonumber(ilvl) or false
             end,
             [">="] = function()
-                return itemLevel and itemLevel >=
-                           tonumber(ItemLevelEditBox:GetText()) or false
+                return itemLevel and itemLevel >= tonumber(ilvl) or false
             end,
-            ["!="] = function()
-                return tonumber(ItemLevelEditBox:GetText()) ~= itemLevel
-            end
+            ["!="] = function() return tonumber(ilvl) ~= itemLevel end
         }
 
         if (operators[SIMS.mappings.dropDownValues["Item Level"] or "="]() ==
@@ -149,9 +145,8 @@ function MainFrame_Create()
     MainFrame:RegisterEvent("BANKFRAME_OPENED")
     MainFrame:RegisterEvent("BANKFRAME_CLOSED")
     MainFrame:SetScript("OnEvent", function(self, event)
-        if (event.find(event, "SHOW") and
-            (not ConfirmationFrame:IsVisible() and
-                not CreateFunctionFrame:IsVisible())) then
+        if (event.find(event, "SHOW") and not isFrameVisible(ConfirmationFrame) and
+            not isFrameVisible(CreateFunctionFrame)) then
             MainFrame_Show()
         else
             MainFrame:Hide()
@@ -428,9 +423,12 @@ local function CreateFunctionFrame_Create()
     flags:SetJustifyH("CENTER")
 
     local buttonXOffset = -350
-    local itemNameEditBox = SIMS.FrameFactory.CreateStandardEditBox(
-                                "ItemNameEditBox", queries, "TOP", -150, -45,
-                                155, 40, currentResultsCallback)
+    local itemNameEditBox = SIMS.FrameFactory.CreateStandardEditBox("Item Name",
+                                                                    queries,
+                                                                    "TOP", -150,
+                                                                    -45, 155,
+                                                                    40,
+                                                                    currentResultsCallback)
     local itemNameButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemNameCheckBox", queries, {itemNameEditBox},
                                "Item Name", "TOP", buttonXOffset, -50,
@@ -444,9 +442,11 @@ local function CreateFunctionFrame_Create()
                                                                   iLvlDropDownMenuItems,
                                                                   "Item Level",
                                                                   currentResultsCallback)
-    local iLvlEditBox = SIMS.FrameFactory.CreateStandardEditBox(
-                            "ItemLevelEditBox", queries, "TOP", -99, -80, 77.5,
-                            40, currentResultsCallback)
+    local iLvlEditBox = SIMS.FrameFactory.CreateStandardEditBox("Item Level",
+                                                                queries, "TOP",
+                                                                -99, -80, 77.5,
+                                                                40,
+                                                                currentResultsCallback)
     local iLvlButton = SIMS.FrameFactory.CreateStandardCheckButton(
                            "ItemLevelCheckBox", queries,
                            {iLvlEditBox, iLvlDropDown}, "Item Level", "TOP",

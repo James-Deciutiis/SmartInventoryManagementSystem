@@ -42,3 +42,8 @@ qualityValueMapping["Legendary"] = 5
 qualityValueMapping["Artifact"] = 6
 qualityValueMapping["Heirloom"] = 7
 qualityValueMapping["WoW Token"] = 8
+
+local editBoxValues = {}
+SIMS.mappings.editBoxValues = editBoxValues
+editBoxValues["Item Name"] = nil
+editBoxValues["Item Level"] = nil

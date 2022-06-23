@@ -30,7 +30,7 @@ end
 
 function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
                                             length, width, hookScript)
-    local editBox = CreateFrame("EditBox", name, parent,
+    local editBox = CreateFrame("EditBox", nil, parent,
                                 BackdropTemplateMixin and "BackdropTemplate")
     editBox:SetPoint(position, x, y)
     editBox:SetFontObject("ChatFontNormal")
@@ -40,6 +40,10 @@ function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
     editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
     editBox:SetTextInsets(15, 12, 12, 11)
     local editBoxCallback = function() editBox:ClearFocus() end
+    editBox:SetScript("OnChar", function(self, text)
+        SIMS.mappings.editBoxValues[name] = editBox:GetText()
+        if (hookScript) then hookScript() end
+    end)
     editBox:SetScript("OnEscapePressed", function()
         editBoxCallback()
         if (hookScript) then hookScript() end
