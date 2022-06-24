@@ -95,17 +95,19 @@ function FrameFactory.CreateStandardFrame(name, text, size)
     return f
 end
 
-function FrameFactory.CreateStandardButton(parent, text, position, x, y, length,
-                                           height, name)
-    local button = nil
-    if (name ~= nil) then
-        button = CreateFrame("Button", name, parent, "GameMenuButtonTemplate")
-    else
-        button = CreateFrame("Button", nil, parent, "GameMenuButtonTemplate")
-    end
+function FrameFactory.CreateStandardButton(parent, text, position, x, y, size)
+    local button = CreateFrame("Button", nil, parent, "GameMenuButtonTemplate")
+    local sizes = {
+        ["sm"] = function() button:SetSize(75, 25) end,
+        ["md"] = function() button:SetSize(100, 25) end,
+        ["lg"] = function() button:SetSize(125, 25) end
+    }
+
+    if (sizes[size]) then sizes[size]() end
+
     button:SetPoint(position, x, y)
-    if (length ~= nil and height ~= nil) then button:SetSize(length, height) end
     button:SetText(text)
+
     return button
 end
 

@@ -124,18 +124,30 @@ function MainFrame_Create()
     if (MainFrame) then return end
 
     local f = SIMS.FrameFactory
-                  .CreateStandardFrame("MainFrame", "S.I.M.S", "md")
+                  .CreateStandardFrame("MainFrame", "S.I.M.S", "sm")
+
+    local functionNames = {}
+    for key, val in pairs(SavedFunctions) do table.insert(functionNames, key) end
+
     local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
                                   MainFrame, "CENTER", 0, 0, 150,
-                                  "Select Function", SavedFunctions,
+                                  "Select Function", functionNames,
                                   "Saved Functions", nil)
-    local button = SIMS.FrameFactory.CreateStandardButton(MainFrame,
-                                                          "Query Bags",
-                                                          "BOTTOM", 0, 15, nil,
-                                                          nil, nil)
+    local queryButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
+                                                               "Query Bags",
+                                                               "BOTTOM", 0, 15,
+                                                               "md")
+    local cancelButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
+                                                                "Cancel",
+                                                                "BOTTOM", -50,
+                                                                50, "sm")
+    local createNewButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
+                                                                   "Create New",
+                                                                   "BOTTOM", 50,
+                                                                   50, "sm")
 
-    button:SetScript("OnClick", function(self)
-        CreateFunctionFrame_Show()
+    queryButton:SetScript("OnClick", function(self)
+        ConfirmationFrame_Show()
         f:Hide()
     end)
 
@@ -192,8 +204,7 @@ function ConfirmationFrame_Create()
         end
 
         local sellButton = SIMS.FrameFactory.CreateStandardButton(
-                               ConfirmationFrame, "Sell", "BOTTOM", 0, 10, 100,
-                               25, "SellButton")
+                               ConfirmationFrame, "Sell", "BOTTOM", 0, 10, "md")
         sellButton:RegisterEvent("MERCHANT_SHOW")
         sellButton:RegisterEvent("MERCHANT_CLOSED")
         sellButton:SetEnabled(false)
@@ -208,7 +219,7 @@ function ConfirmationFrame_Create()
 
         local mailButton = SIMS.FrameFactory.CreateStandardButton(
                                ConfirmationFrame, "Mail", "BOTTOM", -70, 40,
-                               100, 25)
+                               "md")
 
         f.MailButton = mailButton
         mailButton:RegisterEvent("MAIL_SHOW")
@@ -224,7 +235,7 @@ function ConfirmationFrame_Create()
 
         local bankButton = SIMS.FrameFactory.CreateStandardButton(
                                ConfirmationFrame, "Deposit", "BOTTOM", 70, 40,
-                               100, 25)
+                               "md")
 
         f.BankButton = bankButton
         bankButton:RegisterEvent("BANKFRAME_OPENED")
@@ -240,12 +251,12 @@ function ConfirmationFrame_Create()
 
         local destroyButton = SIMS.FrameFactory.CreateStandardButton(
                                   ConfirmationFrame, "Destroy", "BOTTOMLEFT",
-                                  20, 10, 100, 25, "DestroyButton")
+                                  20, 10, "md")
         f.DestroyButton = destroyButton
 
         local cancelButton = SIMS.FrameFactory.CreateStandardButton(
                                  ConfirmationFrame, "Cancel", "BOTTOMRIGHT",
-                                 -20, 10, 100, 25, "CancelButton")
+                                 -20, 10, "md")
         cancelButton:SetScript("OnClick", cancelCallback)
 
         f:Show()
@@ -254,6 +265,24 @@ end
 
 function ConfirmationFrame_Show()
     if not ConfirmationFrame then ConfirmationFrame_Create() end
+
+    local currentFunction = SIMS.mappings.dropDownValues["Saved Functions"]
+
+    if (currentFunction) then
+        local currentFlags = currentFunction.flags
+        local currentDropDownValues = currentFunction.dropDownValues
+        local currentEditBoxValues = currentFunction.editBoxValues
+
+        for key, val in pairs(currentFlags) do
+            SIMS.mappings.flags.key = val
+        end
+        for key, val in pairs(currentDropDownValues) do
+            SIMS.mappings.dropDownValues.key = val
+        end
+        for key, val in pairs(currentEditBoxValues) do
+            SIMS.mappings.editBoxValues.key = val
+        end
+    end
 
     local filterResults = ParseBags()
     itemLinks = filterResults.filteredItems
@@ -349,8 +378,7 @@ local function ConfirmFunctionFrame_Create()
 
     local confirmButton = SIMS.FrameFactory.CreateStandardButton(f, "Confirm",
                                                                  "CENTER", 0,
-                                                                 -40, 100, 20,
-                                                                 "Confirm")
+                                                                 -40, "md")
 
     confirmButton:SetScript("OnClick", function()
         if (SavedFunctions[SIMS.mappings.editBoxValues["Function Name"]]) then
@@ -601,7 +629,7 @@ local function CreateFunctionFrame_Create()
 
     local createButton = SIMS.FrameFactory.CreateStandardButton(
                              CreateFunctionFrame, "Create Function", "BOTTOM",
-                             0, 15, nil, nil, nil)
+                             0, 15, "lg")
     createButton:SetScript("OnClick", function(self)
         local fn = {}
         local flags = {}
