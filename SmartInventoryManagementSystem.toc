@@ -5,8 +5,8 @@
 ## Version: 0.0.1
 ## SavedVariablesPerCharacter: SavedFunctions
 
-Mappings.lua
 Core.lua
+Mappings.lua
 Frames\FrameFactory.lua
 Frames\ScrollingMessageFrame.lua
 SmartInventoryManagementSystem.lua

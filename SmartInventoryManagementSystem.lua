@@ -4,10 +4,6 @@ local addonName, SIMS = ...
 local Main = {}
 SIMS.Main = Main
 
-local function SimsHandler() MainFrame_Show() end
-
-SlashCmdList["SIMS"] = SimsHandler;
-
 function isFrameVisible(frame) return frame and frame:IsVisible() end
 
 function scanBags()
@@ -127,7 +123,12 @@ end
 function MainFrame_Create()
     if (MainFrame) then return end
 
-    local f = SIMS.FrameFactory.CreateStandardFrame("MainFrame", "S.I.M.S")
+    local f = SIMS.FrameFactory
+                  .CreateStandardFrame("MainFrame", "S.I.M.S", "md")
+    local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
+                                  MainFrame, "CENTER", 0, 0, 150,
+                                  "Select Function", SavedFunctions,
+                                  "Saved Functions", nil)
     local button = SIMS.FrameFactory.CreateStandardButton(MainFrame,
                                                           "Query Bags",
                                                           "BOTTOM", 0, 15, nil,
@@ -159,7 +160,7 @@ end
 function ConfirmationFrame_Create()
     if not ConfirmationFrame then
         local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmationFrame",
-                                                        "Confirm")
+                                                        "Confirm", "md")
         f:EnableMouse(true)
         f:EnableMouseWheel(true)
 
@@ -336,11 +337,49 @@ function ConfirmationFrame_Show()
     ConfirmationFrame:Show()
 end
 
+local function ConfirmFunctionFrame_Create()
+    if (ConfirmFunctionFrame) then return end
+
+    local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmFunctionFrame",
+                                                    "Name your function", "sm")
+
+    local nameEditBox = SIMS.FrameFactory.CreateStandardEditBox("Function Name",
+                                                                f, "CENTER", 0,
+                                                                10, 155, 40, nil)
+
+    local confirmButton = SIMS.FrameFactory.CreateStandardButton(f, "Confirm",
+                                                                 "CENTER", 0,
+                                                                 -40, 100, 20,
+                                                                 "Confirm")
+
+    confirmButton:SetScript("OnClick", function()
+        if (SavedFunctions[SIMS.mappings.editBoxValues["Function Name"]]) then
+            print(
+                "Function that that name already exists! Pick a different name!")
+            CreateFunctionFrame_Show()
+        else
+            SavedFunctions[SIMS.mappings.editBoxValues["Function Name"]] =
+                CreateFunctionFrame.currentFunction
+            MainFrame_Show()
+        end
+
+        SIMS.mappings.editBoxValues["Function Name"] = nil
+        nameEditBox:SetText("")
+        f:Hide()
+    end)
+end
+
+local function ConfirmFunctionFrame_Show()
+    if (not ConfirmFunctionFrame) then ConfirmFunctionFrame_Create() end
+
+    ConfirmFunctionFrame:Show()
+end
+
 local function CreateFunctionFrame_Create()
     if (CreateFunctionFrame) then return end
 
-    local f = SIMS.FrameFactory.CreateLargeFrame("CreateFunctionFrame",
-                                                 "Create new function")
+    local f = SIMS.FrameFactory.CreateStandardFrame("CreateFunctionFrame",
+                                                    "Create new function", "lg")
 
     -- Right side of Create function frame
     local currentResults = CreateFrame("ScrollingMessageFrame", nil, f)
@@ -429,6 +468,8 @@ local function CreateFunctionFrame_Create()
                                                                     -45, 155,
                                                                     40,
                                                                     currentResultsCallback)
+    itemNameEditBox:Hide()
+
     local itemNameButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemNameCheckBox", queries, {itemNameEditBox},
                                "Item Name", "TOP", buttonXOffset, -50,
@@ -442,11 +483,14 @@ local function CreateFunctionFrame_Create()
                                                                   iLvlDropDownMenuItems,
                                                                   "Item Level",
                                                                   currentResultsCallback)
+    iLvlDropDown:Hide()
     local iLvlEditBox = SIMS.FrameFactory.CreateStandardEditBox("Item Level",
                                                                 queries, "TOP",
                                                                 -99, -80, 77.5,
                                                                 40,
                                                                 currentResultsCallback)
+    iLvlEditBox:Hide()
+
     local iLvlButton = SIMS.FrameFactory.CreateStandardCheckButton(
                            "ItemLevelCheckBox", queries,
                            {iLvlEditBox, iLvlDropDown}, "Item Level", "TOP",
@@ -467,6 +511,7 @@ local function CreateFunctionFrame_Create()
                                                                        expansionDropDownMenuItems,
                                                                        "Expansion",
                                                                        currentResultsCallback)
+    expansionDropDown:Hide()
     local expansionButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                 "ExpansionCheckBox", queries,
                                 {expansionDropDown}, "Expansion", "TOP",
@@ -485,6 +530,7 @@ local function CreateFunctionFrame_Create()
                                                                      qualityDropDownMenuItems,
                                                                      "Quality",
                                                                      currentResultsCallback)
+    qualityDropDown:Hide()
     local qualityButton = SIMS.FrameFactory.CreateStandardCheckButton(
                               "QualityCheckBox", queries, {qualityDropDown},
                               "Quality", "TOP", buttonXOffset, -170,
@@ -505,6 +551,7 @@ local function CreateFunctionFrame_Create()
                                      "Item Location",
                                      itemLocationDropDownMenuItems,
                                      "Item Location", currentResultsCallback)
+    itemLocationDropDown:Hide()
     local itemLocationButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                    "ItemTypeCheckButton", queries,
                                    {itemLocationDropDown}, "Item Location",
@@ -525,6 +572,7 @@ local function CreateFunctionFrame_Create()
                                                                       itemTypeDropDownMenuItems,
                                                                       "Item Type",
                                                                       currentResultsCallback)
+    itemTypeDropDown:Hide()
 
     local itemTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemTypeCheckBox", queries, {itemTypeDropDown},
@@ -537,6 +585,7 @@ local function CreateFunctionFrame_Create()
                                     "Binding Type",
                                     bindingTypeDropDownMenuItems, "Soulbound",
                                     currentResultsCallback)
+    bindingTypeDropDown:Hide()
     local bindingTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                   "SoulBoundCheckBox", queries,
                                   {bindingTypeDropDown}, "Binding Type", "TOP",
@@ -556,15 +605,25 @@ local function CreateFunctionFrame_Create()
     createButton:SetScript("OnClick", function(self)
         local fn = {}
         local flags = {}
+        local editBoxValues = {}
+        local dropDownValues = {}
+
         for key, val in pairs(SIMS.mappings.flags) do flags.key = val end
         for key, val in pairs(SIMS.mappings.dropDownValues) do
             dropDownValues.key = val
         end
-
-        -- TODO: add mapping for current query editBox values
+        for key, val in pairs(SIMS.mappings.editBoxValues) do
+            editBoxValues.key = val
+        end
 
         fn.flags = flags
+        fn.editBoxValues = editBoxValues
+        fn.dropDownValues = dropDownValues
+
+        f.currentFunction = fn
         f:Hide()
+
+        ConfirmFunctionFrame_Show()
     end)
 
     f:SetScript("OnShow", function(self) currentResultsCallback() end)
@@ -573,8 +632,6 @@ end
 
 function CreateFunctionFrame_Show()
     if not CreateFunctionFrame then CreateFunctionFrame_Create() end
-
-    if text then CreateFunctionFrameEditBox:SetText(text) end
 
     CreateFunctionFrame:Show()
 end
@@ -588,3 +645,10 @@ function Main.initialize()
     if SavedFunctions == nil then SavedFunctions = {} end
     MainFrame_Create()
 end
+
+local function SimsHandler()
+    ParseBags()
+    MainFrame_Show()
+end
+
+SlashCmdList["SIMS"] = SimsHandler;

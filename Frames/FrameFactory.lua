@@ -32,6 +32,7 @@ function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
                                             length, width, hookScript)
     local editBox = CreateFrame("EditBox", nil, parent,
                                 BackdropTemplateMixin and "BackdropTemplate")
+
     editBox:SetPoint(position, x, y)
     editBox:SetFontObject("ChatFontNormal")
     editBox:SetMultiLine(false)
@@ -53,41 +54,26 @@ function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
         if (hookScript) then hookScript() end
     end)
 
-    editBox:Hide()
     return editBox
 end
 
-function FrameFactory.CreateStandardFrame(name, text)
+function FrameFactory.CreateStandardFrame(name, text, size)
     local f =
         CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
     f:SetPoint("CENTER")
-    f:SetSize(400, 500)
-    f:SetMovable(true)
-    f:SetClampedToScreen(true)
-    f:EnableKeyboard(true)
-    f.title = f:CreateFontString(nil, "OVERLAY")
-    f.title:SetFontObject("GameFontHighlight")
-    f.title:SetPoint("CENTER", f.TitleBg, 5, 0)
-    f.title:SetText(text)
 
-    f:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then self:StartMoving() end
-    end)
-    f:SetScript("OnKeyDown", function(self, key)
-        if (GetBindingFromClick(key) == "TOGGLEGAMEMENU") then
-            self:Hide()
-        end
-    end)
-    f:SetScript("OnMouseUp", f.StopMovingOrSizing)
+    local sizes = {
+        ["sm"] = function() f:SetSize(300, 200) end,
+        ["md"] = function() f:SetSize(400, 500) end,
+        ["lg"] = function() f:SetSize(800, 500) end
+    }
 
-    return f
-end
+    if (sizes[size]) then
+        sizes[size]()
+    else
+        sizes["md"]()
+    end
 
-function FrameFactory.CreateLargeFrame(name, text)
-    local f =
-        CreateFrame("Frame", name, UIParent, "BasicFrameTemplateWithInset")
-    f:SetPoint("CENTER")
-    f:SetSize(800, 500)
     f:SetMovable(true)
     f:SetClampedToScreen(true)
     f:EnableKeyboard(true)
@@ -127,7 +113,6 @@ function FrameFactory.CreateStandardDropDown(parent, position, x, y, width,
                                              text, menuItems, target, hookScript)
     local dropDown = CreateFrame("FRAME", nil, parent, "UIDropDownMenuTemplate")
     dropDown:SetPoint(position, x, y)
-    dropDown:Hide()
     UIDropDownMenu_SetWidth(dropDown, width)
     UIDropDownMenu_SetText(dropDown, text)
     UIDropDownMenu_Initialize(dropDown, function(self, level, menuList)

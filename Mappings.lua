@@ -18,6 +18,7 @@ dropDownValues["Item Location"] = nil
 dropDownValues["Item Type"] = nil
 dropDownValues["Item Level"] = nil
 dropDownValues["Soulbound"] = nil
+dropDownValues["Saved Functions"] = nil
 
 local expansionValueMapping = {}
 SIMS.mappings.expansionValueMapping = expansionValueMapping
@@ -47,3 +48,4 @@ local editBoxValues = {}
 SIMS.mappings.editBoxValues = editBoxValues
 editBoxValues["Item Name"] = nil
 editBoxValues["Item Level"] = nil
+editBoxValues["Function Name"] = nil
