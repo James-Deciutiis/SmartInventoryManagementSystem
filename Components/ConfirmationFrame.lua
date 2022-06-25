@@ -33,7 +33,7 @@ function ConfirmationFrameComponent.Create()
 
         local cancelCallback = function(self)
             f:Hide()
-            CreateFunctionFrame_Show()
+            SIMS.CreateFunctionFrameComponent.Show()
         end
 
         local sellButton = SIMS.FrameFactory.CreateStandardButton(
@@ -99,8 +99,10 @@ end
 function ConfirmationFrameComponent.Show()
     if not ConfirmationFrame then ConfirmationFrameComponent.Create() end
 
-    local currentFunction = SIMS.mappings.dropDownValues["Saved Functions"]
+    local currentFunction =
+        SavedFunctions[SIMS.mappings.dropDownValues["Saved Functions"]]
 
+    print(currentFunction)
     if (currentFunction) then
         local currentFlags = currentFunction.flags
         local currentDropDownValues = currentFunction.dropDownValues
@@ -128,7 +130,7 @@ function ConfirmationFrameComponent.Show()
         end
 
         ConfirmationFrame:Hide()
-        CreateFunctionFrame_Show()
+        SIMS.CreateFunctionFrameComponent.Show()
     end)
     ConfirmationFrame.SellButton:SetEnabled(MerchantFrame:IsVisible())
 
@@ -139,7 +141,7 @@ function ConfirmationFrameComponent.Show()
         end
 
         ConfirmationFrame:Hide()
-        CreateFunctionFrame_Show()
+        SIMS.CreateFunctionFrameComponent.Show()
     end)
 
     ConfirmationFrame.MailButton:SetScript("OnClick", function()
@@ -148,7 +150,7 @@ function ConfirmationFrameComponent.Show()
                 UseContainerItem(value.bag, value.slot)
             end
             ConfirmationFrame:Hide()
-            CreateFunctionFrame_Show()
+            SIMS.CreateFunctionFrameComponent.Show()
         end
     end)
     ConfirmationFrame.MailButton:SetEnabled(MailFrame:IsVisible())
@@ -158,7 +160,7 @@ function ConfirmationFrameComponent.Show()
             UseContainerItem(value.bag, value.slot)
         end
         ConfirmationFrame:Hide()
-        CreateFunctionFrame_Show()
+        SIMS.CreateFunctionFrameComponent.Show()
     end)
     ConfirmationFrame.BankButton:SetEnabled(BankFrame:IsVisible())
 

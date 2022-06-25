@@ -10,5 +10,6 @@ Mappings.lua
 Frames\FrameFactory.lua
 Frames\ScrollingMessageFrame.lua
 Components\MainFrame.lua
+Components\CreateFunctionFrame.lua
 Components\ConfirmationFrame.lua
 SmartInventoryManagementSystem.lua

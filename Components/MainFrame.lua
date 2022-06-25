@@ -11,6 +11,11 @@ function MainFrameComponent.Create()
     local functionNames = {}
     for key, val in pairs(SavedFunctions) do table.insert(functionNames, key) end
 
+    local labelXOffset = -70
+    local functionLabel = f:CreateFontString(f, _, "GameFontNormal")
+    functionLabel:SetPoint("TOP", labelXOffset, -50)
+    functionLabel:SetText("Select Function")
+
     local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
                                   MainFrame, "CENTER", 0, 0, 150,
                                   "Select Function", functionNames,
@@ -23,15 +28,20 @@ function MainFrameComponent.Create()
                                                                 "Cancel",
                                                                 "BOTTOM", -50,
                                                                 50, "sm")
-    local createNewButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
-                                                                   "Create New",
-                                                                   "BOTTOM", 50,
-                                                                   50, "sm")
+    local createNewFunctionButton = SIMS.FrameFactory.CreateStandardButton(
+                                        MainFrame, "New", "BOTTOM", 50, 50, "sm")
 
     queryButton:SetScript("OnClick", function(self)
         SIMS.ConfirmationFrameComponent.Show()
         f:Hide()
     end)
+
+    createNewFunctionButton:SetScript("OnClick", function(self)
+        SIMS.CreateFunctionFrameComponent.Show()
+        f:Hide()
+    end)
+
+    cancelButton:SetScript("OnClick", function(self) f:Hide() end)
 
     MainFrame:RegisterEvent("MERCHANT_SHOW")
     MainFrame:RegisterEvent("MERCHANT_CLOSED")
@@ -46,6 +56,16 @@ function MainFrameComponent.Create()
         else
             MainFrame:Hide()
         end
+    end)
+
+    MainFrame:SetScript("OnShow", function(self)
+        functionNames = {}
+        for key, val in pairs(SavedFunctions) do
+            table.insert(functionNames, key)
+        end
+
+        functionsDropDown:updateList(functionNames)
+
     end)
 
     MainFrame:Hide()
