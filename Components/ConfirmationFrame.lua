@@ -102,20 +102,19 @@ function ConfirmationFrameComponent.Show()
     local currentFunction =
         SavedFunctions[SIMS.mappings.dropDownValues["Saved Functions"]]
 
-    print(currentFunction)
     if (currentFunction) then
         local currentFlags = currentFunction.flags
         local currentDropDownValues = currentFunction.dropDownValues
         local currentEditBoxValues = currentFunction.editBoxValues
 
         for key, val in pairs(currentFlags) do
-            SIMS.mappings.flags.key = val
+            SIMS.mappings.flags[key] = val
         end
         for key, val in pairs(currentDropDownValues) do
-            SIMS.mappings.dropDownValues.key = val
+            SIMS.mappings.dropDownValues[key] = val
         end
         for key, val in pairs(currentEditBoxValues) do
-            SIMS.mappings.editBoxValues.key = val
+            SIMS.mappings.editBoxValues[key] = val
         end
     end
 

@@ -58,16 +58,6 @@ function MainFrameComponent.Create()
         end
     end)
 
-    MainFrame:SetScript("OnShow", function(self)
-        functionNames = {}
-        for key, val in pairs(SavedFunctions) do
-            table.insert(functionNames, key)
-        end
-
-        functionsDropDown:updateList(functionNames)
-
-    end)
-
     MainFrame:Hide()
 end
 

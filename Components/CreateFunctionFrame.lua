@@ -17,13 +17,28 @@ local function ConfirmFunctionFrame_Create()
                                                                  -40, "md")
 
     confirmButton:SetScript("OnClick", function()
-        if (SavedFunctions[SIMS.mappings.editBoxValues["Function Name"]]) then
+        local functionName = SIMS.mappings.editBoxValues["Function Name"]
+        if (SavedFunctions[functionName]) then
             print(
                 "Function that that name already exists! Pick a different name!")
             SIMS.CreateFunctionFrameComponent.Show()
         else
-            SavedFunctions[SIMS.mappings.editBoxValues["Function Name"]] =
-                CreateFunctionFrame.currentFunction
+            SavedFunctions[functionName] = {}
+
+            SavedFunctions[functionName].flags = {}
+            SavedFunctions[functionName].editBoxValues = {}
+            SavedFunctions[functionName].dropDownValues = {}
+
+            for key, val in pairs(SIMS.mappings.flags) do
+                SavedFunctions[functionName].flags[key] = val
+            end
+            for key, val in pairs(SIMS.mappings.dropDownValues) do
+                SavedFunctions[functionName].dropDownValues[key] = val
+            end
+            for key, val in pairs(SIMS.mappings.editBoxValues) do
+                SavedFunctions[functionName].editBoxValues[key] = val
+            end
+
             SIMS.MainFrameComponent.Show()
         end
 
@@ -269,27 +284,9 @@ function CreateFunctionFrameComponent.Create()
 
     local backButton = SIMS.FrameFactory.CreateStandardButton(
                            CreateFunctionFrame, "Back", "BOTTOM", 0, 15, "md")
+
     createButton:SetScript("OnClick", function(self)
-        local fn = {}
-        local flags = {}
-        local editBoxValues = {}
-        local dropDownValues = {}
-
-        for key, val in pairs(SIMS.mappings.flags) do flags.key = val end
-        for key, val in pairs(SIMS.mappings.dropDownValues) do
-            dropDownValues.key = val
-        end
-        for key, val in pairs(SIMS.mappings.editBoxValues) do
-            editBoxValues.key = val
-        end
-
-        fn.flags = flags
-        fn.editBoxValues = editBoxValues
-        fn.dropDownValues = dropDownValues
-
-        f.currentFunction = fn
         f:Hide()
-
         ConfirmFunctionFrame_Show()
     end)
 
