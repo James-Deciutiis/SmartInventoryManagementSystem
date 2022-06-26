@@ -16,6 +16,7 @@ function MainFrameComponent.Create()
     functionLabel:SetPoint("TOP", labelXOffset, -50)
     functionLabel:SetText("Select Function")
 
+    -- TODO find a way to update functionNames menu list on drop down
     local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
                                   MainFrame, "CENTER", 0, 0, 150,
                                   "Select Function", functionNames,
@@ -31,12 +32,23 @@ function MainFrameComponent.Create()
     local createNewFunctionButton = SIMS.FrameFactory.CreateStandardButton(
                                         MainFrame, "New", "BOTTOM", 50, 50, "sm")
 
+    -- TODO add functionality to edit SavedFunction 
+
     queryButton:SetScript("OnClick", function(self)
         SIMS.ConfirmationFrameComponent.Show()
         f:Hide()
     end)
 
     createNewFunctionButton:SetScript("OnClick", function(self)
+        for key, val in pairs(SIMS.mappings.dropDownValues) do
+            SIMS.mappings.dropDownValues[key] = nil
+        end
+        for key, val in pairs(SIMS.mappings.editBoxValues) do
+            SIMS.mappings.editBoxValues[key] = nil
+        end
+        for key, val in pairs(SIMS.mappings.flags) do
+            SIMS.mappings.flags[key] = false
+        end
         SIMS.CreateFunctionFrameComponent.Show()
         f:Hide()
     end)

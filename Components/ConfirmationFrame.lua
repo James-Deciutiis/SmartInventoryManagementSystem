@@ -33,7 +33,7 @@ function ConfirmationFrameComponent.Create()
 
         local cancelCallback = function(self)
             f:Hide()
-            SIMS.CreateFunctionFrameComponent.Show()
+            SIMS.MainFrameComponent.Show()
         end
 
         local sellButton = SIMS.FrameFactory.CreateStandardButton(
