@@ -8,19 +8,15 @@ function MainFrameComponent.Create()
     local f = SIMS.FrameFactory
                   .CreateStandardFrame("MainFrame", "S.I.M.S", "sm")
 
-    local functionNames = {}
-    for key, val in pairs(SavedFunctions) do table.insert(functionNames, key) end
-
     local labelXOffset = -70
-    local functionLabel = f:CreateFontString(f, _, "GameFontNormal")
+    local functionLabel = MainFrame:CreateFontString(MainFrame, _,
+                                                     "GameFontNormal")
     functionLabel:SetPoint("TOP", labelXOffset, -50)
     functionLabel:SetText("Select Function")
 
-    -- TODO find a way to update functionNames menu list on drop down
     local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
                                   MainFrame, "CENTER", 0, 0, 150,
-                                  "Select Function", functionNames,
-                                  "Saved Functions", nil)
+                                  "Select Function", nil, "Saved Functions", nil)
     local queryButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
                                                                "Query Bags",
                                                                "BOTTOM", 0, 15,
@@ -34,6 +30,21 @@ function MainFrameComponent.Create()
 
     -- TODO add functionality to edit SavedFunction 
 
+    local function updateMainFrame()
+        if (not isFrameVisible(ConfirmationFrame) and
+            not isFrameVisible(CreateFunctionFrame)) then
+
+            local functionNames = {}
+            for key, val in pairs(SavedFunctions) do
+                table.insert(functionNames, key)
+            end
+            functionsDropDown:updateMenu(functionNames)
+
+            MainFrameComponent.Show()
+        end
+    end
+
+    MainFrame:SetScript("OnShow", function() updateMainFrame() end)
     queryButton:SetScript("OnClick", function(self)
         SIMS.ConfirmationFrameComponent.Show()
         f:Hide()
@@ -62,9 +73,8 @@ function MainFrameComponent.Create()
     MainFrame:RegisterEvent("BANKFRAME_OPENED")
     MainFrame:RegisterEvent("BANKFRAME_CLOSED")
     MainFrame:SetScript("OnEvent", function(self, event)
-        if (event.find(event, "SHOW") and not isFrameVisible(ConfirmationFrame) and
-            not isFrameVisible(CreateFunctionFrame)) then
-            MainFrameComponent.Show()
+        if (event.find(event, "SHOW")) then
+            updateMainFrame()
         else
             MainFrame:Hide()
         end

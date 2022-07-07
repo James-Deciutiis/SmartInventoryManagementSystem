@@ -117,35 +117,30 @@ function FrameFactory.CreateStandardDropDown(parent, position, x, y, width,
     dropDown:SetPoint(position, x, y)
     UIDropDownMenu_SetWidth(dropDown, width)
     UIDropDownMenu_SetText(dropDown, text)
-    UIDropDownMenu_Initialize(dropDown, function(self, level, menuList)
-        local info = UIDropDownMenu_CreateInfo()
-        info.func = self.SetValue
-        for key, value in ipairs(menuItems) do
 
-            info.text, info.arg1, info.checked = value, value, value ==
-                                                     SIMS.mappings
-                                                         .dropDownValues[target]
-            UIDropDownMenu_AddButton(info, level)
-        end
-    end)
+    local function updateFunc(items)
+        UIDropDownMenu_Initialize(dropDown, function(self, level, menuList)
+            local info = UIDropDownMenu_CreateInfo()
+            info.func = self.SetValue
+            for key, value in ipairs(items) do
+
+                info.text, info.arg1, info.checked = value, value, value ==
+                                                         SIMS.mappings
+                                                             .dropDownValues[target]
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+    end
+
+    if (menuItems) then updateFunc(menuItems) end
+
+    function dropDown:updateMenu(newMenu) updateFunc(newMenu) end
 
     function dropDown:SetValue(newValue)
         SIMS.mappings.dropDownValues[target] = newValue
         UIDropDownMenu_SetText(dropDown, newValue)
         CloseDropDownMenus()
         if (hookScript) then hookScript() end
-    end
-
-    function dropDown:updateList(newItems)
-        local info = UIDropDownMenu_CreateInfo()
-        info.func = self.SetValue
-        for key, value in ipairs(newItems) do
-
-            info.text, info.arg1, info.checked = value, value, value ==
-                                                     SIMS.mappings
-                                                         .dropDownValues[target]
-            UIDropDownMenu_AddButton(info, level)
-        end
     end
 
     return dropDown
