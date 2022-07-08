@@ -27,6 +27,8 @@ function MainFrameComponent.Create()
                                                                 50, "sm")
     local createNewFunctionButton = SIMS.FrameFactory.CreateStandardButton(
                                         MainFrame, "New", "BOTTOM", 50, 50, "sm")
+    local deleteFunctionButton = SIMS.FrameFactory.CreateStandardButton(
+                                     MainFrame, "X", "CENTER", 100, 3, "xsm")
 
     -- TODO add functionality to edit SavedFunction 
 
@@ -35,11 +37,14 @@ function MainFrameComponent.Create()
             not isFrameVisible(CreateFunctionFrame)) then
 
             local functionNames = {}
+            local savedFunctionsLength = 0
             for key, val in pairs(SavedFunctions) do
                 table.insert(functionNames, key)
+                savedFunctionsLength = savedFunctionsLength + 1
             end
             functionsDropDown:updateMenu(functionNames)
 
+            deleteFunctionButton:SetEnabled(savedFunctionsLength >= 1)
             MainFrameComponent.Show()
         end
     end
@@ -48,6 +53,13 @@ function MainFrameComponent.Create()
     queryButton:SetScript("OnClick", function(self)
         SIMS.ConfirmationFrameComponent.Show()
         f:Hide()
+    end)
+    deleteFunctionButton:SetScript("OnClick", function()
+        local currentFunctionName =
+            SIMS.mappings.dropDownValues["Saved Functions"]
+        SavedFunctions[currentFunctionName] = nil
+        UIDropDownMenu_SetText(functionsDropDown, "Select Function")
+        updateMainFrame()
     end)
 
     createNewFunctionButton:SetScript("OnClick", function(self)

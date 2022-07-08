@@ -98,6 +98,7 @@ end
 function FrameFactory.CreateStandardButton(parent, text, position, x, y, size)
     local button = CreateFrame("Button", nil, parent, "GameMenuButtonTemplate")
     local sizes = {
+        ["xsm"] = function() button:SetSize(25, 25) end,
         ["sm"] = function() button:SetSize(75, 25) end,
         ["md"] = function() button:SetSize(100, 25) end,
         ["lg"] = function() button:SetSize(125, 25) end
