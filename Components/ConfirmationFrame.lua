@@ -129,7 +129,7 @@ function ConfirmationFrameComponent.Show()
         end
 
         ConfirmationFrame:Hide()
-        SIMS.CreateFunctionFrameComponent.Show()
+        SIMS.MainFrameComponent.Show()
     end)
     ConfirmationFrame.SellButton:SetEnabled(MerchantFrame:IsVisible())
 
@@ -140,7 +140,7 @@ function ConfirmationFrameComponent.Show()
         end
 
         ConfirmationFrame:Hide()
-        SIMS.CreateFunctionFrameComponent.Show()
+        SIMS.MainFrameComponent.Show()
     end)
 
     ConfirmationFrame.MailButton:SetScript("OnClick", function()
@@ -149,7 +149,7 @@ function ConfirmationFrameComponent.Show()
                 UseContainerItem(value.bag, value.slot)
             end
             ConfirmationFrame:Hide()
-            SIMS.CreateFunctionFrameComponent.Show()
+            SIMS.MainFrameComponent.Show()
         end
     end)
     ConfirmationFrame.MailButton:SetEnabled(MailFrame:IsVisible())
@@ -159,7 +159,7 @@ function ConfirmationFrameComponent.Show()
             UseContainerItem(value.bag, value.slot)
         end
         ConfirmationFrame:Hide()
-        SIMS.CreateFunctionFrameComponent.Show()
+        SIMS.MainFrameComponent.Show()
     end)
     ConfirmationFrame.BankButton:SetEnabled(BankFrame:IsVisible())
 

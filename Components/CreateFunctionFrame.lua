@@ -15,6 +15,9 @@ local function ConfirmFunctionFrame_Create()
     local confirmButton = SIMS.FrameFactory.CreateStandardButton(f, "Confirm",
                                                                  "CENTER", 0,
                                                                  -40, "md")
+    local cancelButton = SIMS.FrameFactory.CreateStandardButton(f, "Cancel",
+                                                                "CENTER", 0,
+                                                                -70, "md")
 
     confirmButton:SetScript("OnClick", function()
         local functionName = SIMS.mappings.editBoxValues["Function Name"]
@@ -44,6 +47,12 @@ local function ConfirmFunctionFrame_Create()
 
         SIMS.mappings.editBoxValues["Function Name"] = nil
         nameEditBox:SetText("")
+        f:Hide()
+    end)
+
+    cancelButton:SetScript("OnClick", function()
+        nameEditBox:SetText("")
+        CreateFunctionFrame:Show()
         f:Hide()
     end)
 end
