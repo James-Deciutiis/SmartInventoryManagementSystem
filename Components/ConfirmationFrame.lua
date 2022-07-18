@@ -2,6 +2,59 @@ local addonName, SIMS = ...
 local ConfirmationFrameComponent = {}
 SIMS.ConfirmationFrameComponent = ConfirmationFrameComponent
 
+function ConfirmDeleteFrame_Create()
+    if ConfirmDeleteFrame then return end
+
+    local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmDeleteFrame",
+                                                    "Confirm Delete", "sm")
+
+    local confirmButton = SIMS.FrameFactory.CreateStandardButton(f, "Confirm",
+                                                                 "CENTER", -50,
+                                                                 -70, "md")
+    local cancelButton = SIMS.FrameFactory.CreateStandardButton(f, "Cancel",
+                                                                "CENTER", 50,
+                                                                -70, "md")
+    local total = CreateFrame("ScrollingMessageFrame",
+                              "TotalSellPriceMessageFrame", f)
+    total:SetSize(250, 200)
+    total:SetPoint("BOTTOM", 0, 80)
+    total:SetFontObject(GameFontNormal)
+    total:SetJustifyH("LEFT")
+    total:SetFading(false)
+    total:SetMaxLines(100)
+    f.TotalFrame = total
+
+    f.ConfirmButton = confirmButton
+
+    cancelButton:SetScript("OnClick", function()
+        ConfirmationFrame:Show()
+        f:Hide()
+    end)
+end
+
+function ConfirmDeleteFrame_Show(coords, totalSellPrice)
+    if not ConfirmDeleteFrame then ConfirmDeleteFrame_Create() end
+
+    ConfirmationFrame:Hide()
+    ConfirmDeleteFrame.ConfirmButton:SetScript("OnClick", function()
+        for key, value in ipairs(itemCoords) do
+            PickupContainerItem(value.bag, value.slot)
+            DeleteCursorItem()
+        end
+
+        ConfirmDeleteFrame:Hide()
+        SIMS.MainFrameComponent.Show()
+    end)
+
+    ConfirmDeleteFrame.TotalFrame:Clear()
+    ConfirmDeleteFrame.TotalFrame:AddMessage(
+        "Warning, this action will PERMANENTLY destory")
+    ConfirmDeleteFrame.TotalFrame:AddMessage(
+        GetCoinTextureString(totalSellPrice))
+    ConfirmDeleteFrame.TotalFrame:AddMessage("worth of items, please confirm")
+    ConfirmDeleteFrame:Show()
+end
+
 function ConfirmationFrameComponent.Create()
     if not ConfirmationFrame then
         local f = SIMS.FrameFactory.CreateStandardFrame("ConfirmationFrame",
@@ -134,13 +187,7 @@ function ConfirmationFrameComponent.Show()
     ConfirmationFrame.SellButton:SetEnabled(MerchantFrame:IsVisible())
 
     ConfirmationFrame.DestroyButton:SetScript("OnClick", function()
-        for key, value in ipairs(itemCoords) do
-            PickupContainerItem(value.bag, value.slot)
-            DeleteCursorItem()
-        end
-
-        ConfirmationFrame:Hide()
-        SIMS.MainFrameComponent.Show()
+        ConfirmDeleteFrame_Show(coords, totalSellPrice)
     end)
 
     ConfirmationFrame.MailButton:SetScript("OnClick", function()
