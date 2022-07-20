@@ -1,9 +1,10 @@
 ## Interface: 90200
 ## Title: SmartInventoryManagementSystem
 ## Notes: Manage items more efficiently
-## Author: JamesDeciutiis
-## Version: 0.0.1
-## SavedVariablesPerCharacter: SavedFunctions
+## Author: Motep-Wyrmrest Accord 
+## Version: 0.1.0
+## SavedVariables: SavedFunctions
+## SavedVariablesPerCharacter: IsToggled
 
 Core.lua
 Mappings.lua

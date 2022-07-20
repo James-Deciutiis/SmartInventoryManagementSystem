@@ -96,6 +96,7 @@ function MainFrameComponent.Create()
 end
 
 function MainFrameComponent.Show()
+    if (not IsToggled) then return end
     if not MainFrame then MainFrameComponent.Create() end
     MainFrame:Show()
 end
