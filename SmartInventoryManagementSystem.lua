@@ -3,6 +3,8 @@ SLASH_SIMSTOGGLE1 = "/simstoggle"
 
 local addonName, SIMS = ...
 local Main = {}
+local init = false
+
 SIMS.Main = Main
 
 function scanBags()
@@ -120,10 +122,14 @@ function ParseBags()
 end
 
 function Main.initialize()
+    if (init) then return end
+
     if IsToggled == nil then IsToggled = false end
     if SavedFunctions == nil then SavedFunctions = {} end
-    print("init")
-    print(IsToggled)
+
+    init = true
+
+    print("SIMS is currently toggled " .. (IsToggled and "on." or "off"))
     SIMS.MainFrameComponent.Create()
 end
 
@@ -132,7 +138,10 @@ local function SimsHandler()
     SIMS.MainFrameComponent.Show()
 end
 
-local function ToggleHandler() IsToggled = not IsToggled end
+local function ToggleHandler()
+    IsToggled = not IsToggled
+    print("SIMS is currently toggled " .. (IsToggled and "on." or "off"))
+end
 
 SlashCmdList["SIMS"] = SimsHandler
 SlashCmdList["SIMSTOGGLE"] = ToggleHandler
