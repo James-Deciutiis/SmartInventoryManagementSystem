@@ -21,6 +21,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
         GetContainerItemInfo(currentBag, slot)
     local isHit = true
+
     if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
         if (not string.find(itemName:lower(),
                             SIMS.mappings.editBoxValues["Item Name"]:lower())) then
@@ -129,7 +130,9 @@ function Main.initialize()
 
     init = true
 
-    print("SIMS is currently toggled " .. (IsToggled and "on." or "off"))
+    print("SIMS is currently toggled: " ..
+              (IsToggled and "|cff00FF00ON." or "|cffFF0000OFF."))
+
     SIMS.MainFrameComponent.Create()
 end
 
@@ -140,7 +143,8 @@ end
 
 local function ToggleHandler()
     IsToggled = not IsToggled
-    print("SIMS is currently toggled " .. (IsToggled and "on." or "off"))
+    print("SIMS is currently toggled: " ..
+              (IsToggled and "|cff00FF00ON." or "|cffFF0000OFF."))
 end
 
 SlashCmdList["SIMS"] = SimsHandler

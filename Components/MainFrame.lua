@@ -31,7 +31,6 @@ function MainFrameComponent.Create()
                                      MainFrame, "X", "CENTER", 100, 3, "xsm")
 
     -- TODO add functionality to edit SavedFunction 
-
     local function updateMainFrame()
         if (not isFrameVisible(ConfirmationFrame) and
             not isFrameVisible(CreateFunctionFrame)) then
