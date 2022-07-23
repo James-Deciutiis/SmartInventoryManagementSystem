@@ -122,6 +122,13 @@ function ParseBags()
     return results
 end
 
+function Main.isFrameVisible(frame) return frame and frame:IsVisible() end
+
+function Main.printStatus()
+    print("SIMS is currently toggled: " ..
+              (IsToggled and "|cff00FF00ON." or "|cffFF0000OFF."))
+end
+
 function Main.initialize()
     if (init) then return end
 
@@ -130,9 +137,7 @@ function Main.initialize()
 
     init = true
 
-    print("SIMS is currently toggled: " ..
-              (IsToggled and "|cff00FF00ON." or "|cffFF0000OFF."))
-
+    Main.printStatus()
     SIMS.MainFrameComponent.Create()
 end
 
@@ -143,8 +148,7 @@ end
 
 local function ToggleHandler()
     IsToggled = not IsToggled
-    print("SIMS is currently toggled: " ..
-              (IsToggled and "|cff00FF00ON." or "|cffFF0000OFF."))
+    Main.printStatus()
 end
 
 SlashCmdList["SIMS"] = SimsHandler

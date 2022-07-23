@@ -41,7 +41,7 @@ function FrameFactory.CreateStandardEditBox(name, parent, position, x, y,
     editBox:SetBackdrop(BACKDROP_DIALOG_32_32);
     editBox:SetTextInsets(15, 12, 12, 11)
     local editBoxCallback = function() editBox:ClearFocus() end
-    editBox:SetScript("OnChar", function(self, text)
+    editBox:SetScript("OnCursorChanged", function(self, text)
         SIMS.mappings.editBoxValues[name] = editBox:GetText()
         if (hookScript) then hookScript() end
     end)

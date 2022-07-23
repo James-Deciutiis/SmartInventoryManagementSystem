@@ -32,8 +32,8 @@ function MainFrameComponent.Create()
 
     -- TODO add functionality to edit SavedFunction 
     local function updateMainFrame()
-        if (not isFrameVisible(ConfirmationFrame) and
-            not isFrameVisible(CreateFunctionFrame)) then
+        if (not SIMS.Main.isFrameVisible(ConfirmationFrame) and
+            not SIMS.Main.isFrameVisible(CreateFunctionFrame) and IsToggled) then
 
             local functionNames = {}
             local savedFunctionsLength = 0
@@ -42,9 +42,9 @@ function MainFrameComponent.Create()
                 savedFunctionsLength = savedFunctionsLength + 1
             end
             functionsDropDown:updateMenu(functionNames)
-
             deleteFunctionButton:SetEnabled(savedFunctionsLength >= 1)
-            MainFrameComponent.Show()
+
+            MainFrame:Show()
         end
     end
 
@@ -84,7 +84,7 @@ function MainFrameComponent.Create()
     MainFrame:RegisterEvent("BANKFRAME_OPENED")
     MainFrame:RegisterEvent("BANKFRAME_CLOSED")
     MainFrame:SetScript("OnEvent", function(self, event)
-        if (event.find(event, "SHOW")) then
+        if (event.find(event, "SHOW") or event.find(event, "OPENED")) then
             updateMainFrame()
         else
             MainFrame:Hide()
@@ -95,7 +95,6 @@ function MainFrameComponent.Create()
 end
 
 function MainFrameComponent.Show()
-    if (not IsToggled) then return end
     if not MainFrame then MainFrameComponent.Create() end
-    MainFrame:Show()
+    if (IsToggled) then MainFrame:Show() end
 end
