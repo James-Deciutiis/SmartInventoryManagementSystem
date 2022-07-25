@@ -129,6 +129,45 @@ function CreateFunctionFrameComponent.Create()
                     self:GetScrollOffset())
             end
         end)
+
+        -- TODO: I will refactor this at some point
+        if (SIMS.mappings.flags["Item Name"]) then
+            itemNameEditBox:Show()
+        else
+            itemNameEditBox:Hide()
+        end
+        if (SIMS.mappings.flags["Item Level"]) then
+            iLvlEditBox:Show()
+            iLvlDropDown:Show()
+        else
+            iLvlEditBox:Hide()
+            iLvlDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Expansion"]) then
+            expansionDropDown:Show()
+        else
+            expansionDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Quality"]) then
+            qualityDropDown:Show()
+        else
+            qualityDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Item Location"]) then
+            itemLocationDropDown:Show()
+        else
+            itemLocationDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Item Type"]) then
+            itemTypeDropDown:Show()
+        else
+            itemTypeDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Binding Type"]) then
+            bindingTypeDropDown:Show()
+        else
+            bindingTypeDropDown:Hide()
+        end
     end
 
     -- left side of Create function frame
@@ -156,7 +195,6 @@ function CreateFunctionFrameComponent.Create()
                                                                     -45, 155,
                                                                     40,
                                                                     currentResultsCallback)
-    itemNameEditBox:Hide()
 
     local itemNameButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemNameCheckBox", queries, {itemNameEditBox},
@@ -171,13 +209,11 @@ function CreateFunctionFrameComponent.Create()
                                                                   iLvlDropDownMenuItems,
                                                                   "Item Level",
                                                                   currentResultsCallback)
-    iLvlDropDown:Hide()
     local iLvlEditBox = SIMS.FrameFactory.CreateStandardEditBox("Item Level",
                                                                 queries, "TOP",
                                                                 -99, -80, 77.5,
                                                                 40,
                                                                 currentResultsCallback)
-    iLvlEditBox:Hide()
 
     local iLvlButton = SIMS.FrameFactory.CreateStandardCheckButton(
                            "ItemLevelCheckBox", queries,
@@ -199,7 +235,6 @@ function CreateFunctionFrameComponent.Create()
                                                                        expansionDropDownMenuItems,
                                                                        "Expansion",
                                                                        currentResultsCallback)
-    expansionDropDown:Hide()
     local expansionButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                 "ExpansionCheckBox", queries,
                                 {expansionDropDown}, "Expansion", "TOP",
@@ -218,7 +253,6 @@ function CreateFunctionFrameComponent.Create()
                                                                      qualityDropDownMenuItems,
                                                                      "Quality",
                                                                      currentResultsCallback)
-    qualityDropDown:Hide()
     local qualityButton = SIMS.FrameFactory.CreateStandardCheckButton(
                               "QualityCheckBox", queries, {qualityDropDown},
                               "Quality", "TOP", buttonXOffset, -170,
@@ -239,7 +273,6 @@ function CreateFunctionFrameComponent.Create()
                                      "Item Location",
                                      itemLocationDropDownMenuItems,
                                      "Item Location", currentResultsCallback)
-    itemLocationDropDown:Hide()
     local itemLocationButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                    "ItemTypeCheckButton", queries,
                                    {itemLocationDropDown}, "Item Location",
@@ -260,7 +293,6 @@ function CreateFunctionFrameComponent.Create()
                                                                       itemTypeDropDownMenuItems,
                                                                       "Item Type",
                                                                       currentResultsCallback)
-    itemTypeDropDown:Hide()
 
     local itemTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                "ItemTypeCheckBox", queries, {itemTypeDropDown},
@@ -273,7 +305,6 @@ function CreateFunctionFrameComponent.Create()
                                     "Binding Type",
                                     bindingTypeDropDownMenuItems, "Soulbound",
                                     currentResultsCallback)
-    bindingTypeDropDown:Hide()
     local bindingTypeButton = SIMS.FrameFactory.CreateStandardCheckButton(
                                   "SoulBoundCheckBox", queries,
                                   {bindingTypeDropDown}, "Binding Type", "TOP",

@@ -10,6 +10,7 @@ flags["Binding Type"] = false
 flags["Expansion"] = false
 flags["Item Location"] = false
 flags["Item Type"] = false
+flags["Quality"] = false
 
 local dropDownValues = {}
 SIMS.mappings.dropDownValues = dropDownValues
