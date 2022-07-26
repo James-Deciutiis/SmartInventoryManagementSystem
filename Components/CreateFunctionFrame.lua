@@ -130,44 +130,6 @@ function CreateFunctionFrameComponent.Create()
             end
         end)
 
-        -- TODO: I will refactor this at some point
-        if (SIMS.mappings.flags["Item Name"]) then
-            itemNameEditBox:Show()
-        else
-            itemNameEditBox:Hide()
-        end
-        if (SIMS.mappings.flags["Item Level"]) then
-            iLvlEditBox:Show()
-            iLvlDropDown:Show()
-        else
-            iLvlEditBox:Hide()
-            iLvlDropDown:Hide()
-        end
-        if (SIMS.mappings.flags["Expansion"]) then
-            expansionDropDown:Show()
-        else
-            expansionDropDown:Hide()
-        end
-        if (SIMS.mappings.flags["Quality"]) then
-            qualityDropDown:Show()
-        else
-            qualityDropDown:Hide()
-        end
-        if (SIMS.mappings.flags["Item Location"]) then
-            itemLocationDropDown:Show()
-        else
-            itemLocationDropDown:Hide()
-        end
-        if (SIMS.mappings.flags["Item Type"]) then
-            itemTypeDropDown:Show()
-        else
-            itemTypeDropDown:Hide()
-        end
-        if (SIMS.mappings.flags["Binding Type"]) then
-            bindingTypeDropDown:Show()
-        else
-            bindingTypeDropDown:Hide()
-        end
     end
 
     -- left side of Create function frame
@@ -335,7 +297,54 @@ function CreateFunctionFrameComponent.Create()
         SIMS.MainFrameComponent.Show()
     end)
 
-    f:SetScript("OnShow", function(self) currentResultsCallback() end)
+    f:SetScript("OnShow", function(self)
+        if (SIMS.mappings.flags["Item Name"]) then
+            itemNameEditBox:Show()
+        else
+            itemNameEditBox:Hide()
+        end
+        if (SIMS.mappings.flags["Item Level"]) then
+            iLvlEditBox:Show()
+            iLvlDropDown:Show()
+        else
+            iLvlEditBox:Hide()
+            iLvlDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Expansion"]) then
+            expansionDropDown:Show()
+        else
+            expansionDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Quality"]) then
+            qualityDropDown:Show()
+        else
+            qualityDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Item Location"]) then
+            itemLocationDropDown:Show()
+        else
+            itemLocationDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Item Type"]) then
+            itemTypeDropDown:Show()
+        else
+            itemTypeDropDown:Hide()
+        end
+        if (SIMS.mappings.flags["Binding Type"]) then
+            bindingTypeDropDown:Show()
+        else
+            bindingTypeDropDown:Hide()
+        end
+        itemNameButton:SetChecked(SIMS.mappings.flags["Item Name"])
+        iLvlButton:SetChecked(SIMS.mappings.flags["Item Level"])
+        expansionButton:SetChecked(SIMS.mappings.flags["Expansion"])
+        qualityButton:SetChecked(SIMS.mappings.flags["Quality"])
+        itemLocationButton:SetChecked(SIMS.mappings.flags["Item Location"])
+        itemTypeButton:SetChecked(SIMS.mappings.flags["Item Type"])
+        bindingTypeButton:SetChecked(SIMS.mappings.flags["Binding Type"])
+        currentResultsCallback()
+    end)
+
     CreateFunctionFrame:Hide()
 end
 

@@ -70,7 +70,6 @@ function MainFrameComponent.Create()
         end
         for key, val in pairs(SIMS.mappings.flags) do
             SIMS.mappings.flags[key] = false
-            print(key)
         end
         SIMS.CreateFunctionFrameComponent.Show()
         f:Hide()
