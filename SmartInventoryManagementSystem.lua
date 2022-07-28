@@ -1,4 +1,5 @@
 SLASH_SIMS1 = "/sims"
+
 SLASH_SIMSTOGGLE1 = "/simstoggle"
 
 local addonName, SIMS = ...
