@@ -297,7 +297,7 @@ function CreateFunctionFrameComponent.Create()
         SIMS.MainFrameComponent.Show()
     end)
 
-    f:SetScript("OnShow", function(self)
+    f:SetScript("OnShow", function()
         if (SIMS.mappings.flags["Item Name"]) then
             itemNameEditBox:Show()
         else
@@ -335,7 +335,9 @@ function CreateFunctionFrameComponent.Create()
         else
             bindingTypeDropDown:Hide()
         end
+
         itemNameButton:SetChecked(SIMS.mappings.flags["Item Name"])
+        equipmentButton:SetChecked(SIMS.mappings.flags["Equipment"])
         iLvlButton:SetChecked(SIMS.mappings.flags["Item Level"])
         expansionButton:SetChecked(SIMS.mappings.flags["Expansion"])
         qualityButton:SetChecked(SIMS.mappings.flags["Quality"])

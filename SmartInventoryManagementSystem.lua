@@ -8,14 +8,6 @@ local init = false
 
 SIMS.Main = Main
 
-function scanBags()
-    for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-        for slot = 1, GetContainerNumSlots(currentBag) do
-            local itemLink = GetContainerItemLink(currentBag, slot)
-        end
-    end
-end
-
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
