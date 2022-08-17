@@ -2,7 +2,7 @@ SLASH_SIMS1 = "/sims"
 
 SLASH_SIMSTOGGLE1 = "/simstoggle"
 
-local addonName, SIMS = ...
+local _, SIMS = ...
 local Main = {}
 local init = false
 
