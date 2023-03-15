@@ -9,7 +9,7 @@ function MainFrameComponent.Create()
                   .CreateStandardFrame("MainFrame", "S.I.M.S", "sm")
 
     local labelXOffset = -70
-    local functionLabel = MainFrame:CreateFontString(MainFrame, _,
+    local functionLabel = MainFrame:CreateFontString("MainFrame", nil,
                                                      "GameFontNormal")
     functionLabel:SetPoint("TOP", labelXOffset, -50)
     functionLabel:SetText("Select Function")

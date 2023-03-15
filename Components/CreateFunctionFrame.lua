@@ -80,7 +80,7 @@ function CreateFunctionFrameComponent.Create()
     currentResults.MessageFrame = MessageFrame
 
     local currentResultLabel = currentResults:CreateFontString(currentResults,
-                                                               _,
+                                                               "OVERLAY",
                                                                "GameFontNormal")
     currentResultLabel:SetPoint("TOP", 185, -30)
     currentResultLabel:SetText("Current results")
@@ -140,7 +140,8 @@ function CreateFunctionFrameComponent.Create()
     queries:SetJustifyH("CENTER")
 
     local labelXOffset = -350
-    local queryLabel = queries:CreateFontString(queries, _, "GameFontNormal")
+    local queryLabel = queries:CreateFontString(queries, "OVERLAY",
+                                                "GameFontNormal")
     queryLabel:SetPoint("TOP", labelXOffset, -30)
     queryLabel:SetText("Queries")
 
@@ -272,7 +273,7 @@ function CreateFunctionFrameComponent.Create()
                                   {bindingTypeDropDown}, "Binding Type", "TOP",
                                   buttonXOffset, -290, currentResultsCallback)
 
-    local flagLabel = flags:CreateFontString(flags, _, "GameFontNormal")
+    local flagLabel = flags:CreateFontString(flags, "OVERLAY", "GameFontNormal")
     flagLabel:SetPoint("TOP", labelXOffset, -30)
     flagLabel:SetText("Flags")
 

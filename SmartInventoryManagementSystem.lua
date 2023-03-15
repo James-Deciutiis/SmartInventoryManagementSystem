@@ -12,7 +12,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
     icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
-        GetContainerItemInfo(currentBag, slot)
+        C_Container.GetContainerItemInfo(currentBag, slot)
     local isHit = true
 
     if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
@@ -82,7 +82,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
 
         table.insert(itemCoords, coords)
         table.insert(filteredItems, itemLink)
-        if (sellPrice) then
+        if (sellPrice and itemCount) then
             return sellPrice * itemCount
         else
             return 0
@@ -97,8 +97,8 @@ function ParseBags()
     local itemCoords = {}
     local totalSellPrice = 0
     for currentBag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-        for slot = 1, GetContainerNumSlots(currentBag) do
-            local itemLink = GetContainerItemLink(currentBag, slot)
+        for slot = 1, C_Container.GetContainerNumSlots(currentBag) do
+            local itemLink = C_Container.GetContainerItemLink(currentBag, slot)
             if (itemLink) then
                 totalSellPrice = totalSellPrice +
                                      filter(itemLink, filteredItems, itemCoords,
