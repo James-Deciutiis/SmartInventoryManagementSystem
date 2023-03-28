@@ -79,9 +79,9 @@ function CreateFunctionFrameComponent.Create()
                              currentResults, 185, 0, 350, 300)
     currentResults.MessageFrame = MessageFrame
 
-    local currentResultLabel = currentResults:CreateFontString(currentResults,
-                                                               "OVERLAY",
+    local currentResultLabel = currentResults:CreateFontString(nil, "ARTWORK",
                                                                "GameFontNormal")
+
     currentResultLabel:SetPoint("TOP", 185, -30)
     currentResultLabel:SetText("Current results")
     local total = CreateFrame("ScrollingMessageFrame",
@@ -119,7 +119,6 @@ function CreateFunctionFrameComponent.Create()
         end
 
         currentResults.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
-        currentResults.MessageFrame.scrollBar:SetValue(0)
         currentResults.MessageFrame:SetScript("OnMouseWheel",
                                               function(self, delta)
             if ((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
@@ -140,8 +139,8 @@ function CreateFunctionFrameComponent.Create()
     queries:SetJustifyH("CENTER")
 
     local labelXOffset = -350
-    local queryLabel = queries:CreateFontString(queries, "OVERLAY",
-                                                "GameFontNormal")
+    local queryLabel =
+        queries:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     queryLabel:SetPoint("TOP", labelXOffset, -30)
     queryLabel:SetText("Queries")
 
@@ -273,7 +272,7 @@ function CreateFunctionFrameComponent.Create()
                                   {bindingTypeDropDown}, "Binding Type", "TOP",
                                   buttonXOffset, -290, currentResultsCallback)
 
-    local flagLabel = flags:CreateFontString(flags, "OVERLAY", "GameFontNormal")
+    local flagLabel = flags:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     flagLabel:SetPoint("TOP", labelXOffset, -30)
     flagLabel:SetText("Flags")
 

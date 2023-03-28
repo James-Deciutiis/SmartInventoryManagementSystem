@@ -8,6 +8,7 @@ local init = false
 
 SIMS.Main = Main
 
+--- split this function into filter, and sumTotalSellPrice
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
@@ -108,6 +109,7 @@ function ParseBags()
     end
 
     local results = {}
+    console.log()
     results.filteredItems = filteredItems
     results.itemCoords = itemCoords
     results.totalSellPrice = totalSellPrice
