@@ -12,12 +12,17 @@ SIMS.Main = Main
 function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
-    icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
-        C_Container.GetContainerItemInfo(currentBag, slot)
+
+    containerItemInfo = C_Container.GetContainerItemInfo(currentBag, slot)
+    -- icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
+    local itemCount = containerItemInfo.stackCount
+    local itemLink = containerItemInfo.hyperlink
+    local isBound = containerItemInfo.isBound
     local isHit = true
 
     if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
-        if (not string.find(itemName:lower(),
+        if (SIMS.mappings.editBoxValues["Item Name"] and
+            not string.find(itemName:lower(),
                             SIMS.mappings.editBoxValues["Item Name"]:lower())) then
             isHit = false
         end
@@ -109,7 +114,6 @@ function ParseBags()
     end
 
     local results = {}
-    console.log()
     results.filteredItems = filteredItems
     results.itemCoords = itemCoords
     results.totalSellPrice = totalSellPrice

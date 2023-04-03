@@ -69,7 +69,7 @@ function ConfirmationFrameComponent.Create()
         f.MessageFrame = MessageFrame
 
         local resultsLabel = ConfirmationFrame:CreateFontString(
-                                 ConfirmationFrame, _, "GameFontNormal")
+                                 "ConfirmationFrame", nil, "GameFontNormal")
         resultsLabel:SetPoint("TOP", -100, -40)
         resultsLabel:SetText("Results")
         local total = CreateFrame("ScrollingMessageFrame",
@@ -176,9 +176,9 @@ function ConfirmationFrameComponent.Show()
     totalSellPrice = filterResults.totalSellPrice
     itemCoords = filterResults.itemCoords
 
-    ConfirmationFrame.SellButton:SetScript("OnClick", function(self)
+    ConfirmationFrame.SellButton:SetScript("OnClick", function()
         for key, value in ipairs(itemCoords) do
-            UseContainerItem(value.bag, value.slot)
+            C_Container.UseContainerItem(value.bag, value.slot)
         end
 
         ConfirmationFrame:Hide()
@@ -193,7 +193,7 @@ function ConfirmationFrameComponent.Show()
     ConfirmationFrame.MailButton:SetScript("OnClick", function()
         if (SendMailFrame:IsShown()) then
             for key, value in ipairs(itemCoords) do
-                UseContainerItem(value.bag, value.slot)
+                C_Container.UseContainerItem(value.bag, value.slot)
             end
             ConfirmationFrame:Hide()
             SIMS.MainFrameComponent.Show()
@@ -203,7 +203,7 @@ function ConfirmationFrameComponent.Show()
 
     ConfirmationFrame.BankButton:SetScript("OnClick", function()
         for key, value in ipairs(itemCoords) do
-            UseContainerItem(value.bag, value.slot)
+            C_Container.UseContainerItem(value.bag, value.slot)
         end
         ConfirmationFrame:Hide()
         SIMS.MainFrameComponent.Show()
@@ -229,14 +229,13 @@ function ConfirmationFrameComponent.Show()
     end
 
     ConfirmationFrame.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
-    ConfirmationFrame.MessageFrame.scrollBar:SetValue(0)
+    -- ConfirmationFrame.MessageFrame.scrollBar:SetValue(0)
     ConfirmationFrame.MessageFrame:SetScript("OnMouseWheel",
                                              function(self, delta)
         if ((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
             delta > 0) then
             self:ScrollByAmount(-delta * 3)
-            ConfirmationFrame.MessageFrame.scrollBar:SetValue(
-                self:GetScrollOffset())
+            -- ConfirmationFrame.MessageFrame.scrollBar:SetValue( self:GetScrollOffset())
         end
     end)
 

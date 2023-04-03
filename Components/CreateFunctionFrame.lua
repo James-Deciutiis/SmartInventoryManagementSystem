@@ -121,11 +121,11 @@ function CreateFunctionFrameComponent.Create()
         currentResults.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
         currentResults.MessageFrame:SetScript("OnMouseWheel",
                                               function(self, delta)
-            if ((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
-                delta > 0) then
+            if (((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
+                delta > 0)) then
                 self:ScrollByAmount(-delta * 3)
-                currentResults.MessageFrame.scrollBar:SetValue(
-                    self:GetScrollOffset())
+                -- throws lua error, come back to this
+                -- currentResults.MessageFrame.scrollBar:SetValue(self:GetScrollOffset())
             end
         end)
 
