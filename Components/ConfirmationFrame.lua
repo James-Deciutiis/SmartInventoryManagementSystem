@@ -208,7 +208,7 @@ function ConfirmationFrameComponent.Show()
         ConfirmationFrame:Hide()
         SIMS.MainFrameComponent.Show()
     end)
-    ConfirmationFrame.BankButton:SetEnabled(BankFrame:IsVisible())
+    ConfirmationFrame.BankButton:SetEnabled(BankFrame:IsShown())
 
     local length = 0
     for key, value in ipairs(itemLinks) do length = length + 1 end
