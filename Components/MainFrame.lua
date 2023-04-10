@@ -14,13 +14,15 @@ function MainFrameComponent.Create()
     functionLabel:SetPoint("TOP", labelXOffset, -50)
     functionLabel:SetText("Select Function")
 
-    local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
-                                  MainFrame, "CENTER", 0, 0, 150,
-                                  "Select Function", nil, "Saved Functions", nil)
     local queryButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
                                                                "Query Bags",
                                                                "BOTTOM", 0, 15,
                                                                "md")
+    local reserveListButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
+                                                                     "Reservelist",
+                                                                     "BOTTOM",
+                                                                     -85, 15,
+                                                                     "md")
     local cancelButton = SIMS.FrameFactory.CreateStandardButton(MainFrame,
                                                                 "Cancel",
                                                                 "BOTTOM", -50,
@@ -29,6 +31,13 @@ function MainFrameComponent.Create()
                                         MainFrame, "New", "BOTTOM", 50, 50, "sm")
     local deleteFunctionButton = SIMS.FrameFactory.CreateStandardButton(
                                      MainFrame, "X", "CENTER", 100, 3, "xsm")
+    local functionsDropDown = SIMS.FrameFactory.CreateStandardDropDown(
+                                  MainFrame, "CENTER", 0, 0, 150,
+                                  "Select Function", nil, "Saved Functions",
+                                  function()
+            queryButton:SetEnabled(
+                SIMS.mappings.dropDownValues["Saved Functions"] ~= nil)
+        end)
 
     -- TODO add functionality to edit SavedFunction 
     local function updateMainFrame()
@@ -53,6 +62,9 @@ function MainFrameComponent.Create()
         SIMS.ConfirmationFrameComponent.Show()
         f:Hide()
     end)
+    queryButton:SetEnabled(SIMS.mappings.dropDownValues["Saved Functions"] ~=
+                               nil)
+
     deleteFunctionButton:SetScript("OnClick", function()
         local currentFunctionName =
             SIMS.mappings.dropDownValues["Saved Functions"]
@@ -72,6 +84,11 @@ function MainFrameComponent.Create()
             SIMS.mappings.flags[key] = false
         end
         SIMS.CreateFunctionFrameComponent.Show()
+        f:Hide()
+    end)
+
+    reserveListButton:SetScript("OnClick", function()
+        SIMS.ReserveListFrameComponent.Show()
         f:Hide()
     end)
 

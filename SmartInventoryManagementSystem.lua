@@ -16,9 +16,13 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     containerItemInfo = C_Container.GetContainerItemInfo(currentBag, slot)
     -- icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound =
     local itemCount = containerItemInfo.stackCount
-    local itemLink = containerItemInfo.hyperlink
     local isBound = containerItemInfo.isBound
     local isHit = true
+
+    -- Check if itemLink is in ReserveList
+    for key, value in ipairs(ReserveList) do
+        if value == itemLink then return 0 end
+    end
 
     if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
         if (SIMS.mappings.editBoxValues["Item Name"] and
@@ -133,6 +137,7 @@ function Main.initialize()
 
     if IsToggled == nil then IsToggled = false end
     if SavedFunctions == nil then SavedFunctions = {} end
+    if ReserveList == nil then ReserveList = {} end
 
     init = true
 

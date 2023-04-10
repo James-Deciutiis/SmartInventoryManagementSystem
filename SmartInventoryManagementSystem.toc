@@ -4,7 +4,7 @@
 ## Author: Motep-Wyrmrest Accord 
 ## Version: 0.1.0
 ## SavedVariables: SavedFunctions
-## SavedVariablesPerCharacter: IsToggled
+## SavedVariablesPerCharacter: IsToggled, ReserveList
 
 Core.lua
 Mappings.lua
@@ -13,4 +13,5 @@ Frames\ScrollingMessageFrame.lua
 Components\MainFrame.lua
 Components\CreateFunctionFrame.lua
 Components\ConfirmationFrame.lua
+Components\ReserveListFrame.lua
 SmartInventoryManagementSystem.lua
