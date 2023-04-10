@@ -15,41 +15,47 @@ function ReserveListFrameComponent.Create()
                                                     "Manage Reservelist", "lg")
 
     -- Right side of Reserve List frame
-    local currentResults = CreateFrame("ScrollingMessageFrame", nil, f)
-    currentResults:SetSize(400, 400)
-    currentResults:SetPoint("TOP", 0, -5)
-    currentResults:SetFontObject(GameFontNormal)
+    local currentReserveList = CreateFrame("ScrollingMessageFrame", nil, f)
+    currentReserveList:SetSize(400, 400)
+    currentReserveList:SetPoint("TOP", 0, -5)
+    currentReserveList:SetFontObject(GameFontNormal)
+
+    local currentReserveListLabel = currentReserveList:CreateFontString(nil,
+                                                                        "ARTWORK",
+                                                                        "GameFontNormal")
+    currentReserveListLabel:SetPoint("TOP", 185, -30)
+    currentReserveListLabel:SetText("Current Reserve List")
 
     local MessageFrame = SIMS.FrameFactory.CreateScrollingMessageFrame(
-                             currentResults, 185, -10, 350, 300)
-    currentResults.MessageFrame = MessageFrame
+                             currentReserveList, 185, -20, 350, 300)
+    currentReserveList.MessageFrame = MessageFrame
 
-    local currentResultsCallback = function()
+    local currentReserveListCallback = function()
         local reservedItems = ReserveList
         local length = 0
         for key, value in ipairs(reservedItems) do length = length + 1 end
 
-        currentResults.MessageFrame:Clear()
-        currentResults.MessageFrame:SetMaxLines(length)
+        currentReserveList.MessageFrame:Clear()
+        currentReserveList.MessageFrame:SetMaxLines(length)
         for key, value in ipairs(reservedItems) do
-            currentResults.MessageFrame:AddMessage(value)
+            currentReserveList.MessageFrame:AddMessage(value)
         end
-        local bottomPadding = 25
-        local visualMax = length < bottomPadding and 0 or length - bottomPadding
+        local topPadding = 20
+        local visualMax = length < topPadding and 0 or length - topPadding
         if (visualMax == 0) then
-            currentResults.MessageFrame.scrollBar:Hide()
+            currentReserveList.MessageFrame.scrollBar:Hide()
         else
-            currentResults.MessageFrame.scrollBar:Show()
+            currentReserveList.MessageFrame.scrollBar:Show()
         end
 
-        currentResults.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
-        currentResults.MessageFrame:SetScript("OnMouseWheel",
-                                              function(self, delta)
-            if (((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
+        -- currentReserveList.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
+        currentReserveList.MessageFrame:SetScript("OnMouseWheel",
+                                                  function(self, delta)
+            if (((delta < 0 and self:GetScrollOffset() < length - topPadding) or
                 delta > 0)) then
                 self:ScrollByAmount(-delta * 3)
                 -- throws lua error, come back to this
-                -- currentResults.MessageFrame.scrollBar:SetValue(self:GetScrollOffset())
+                -- currentReserveList.MessageFrame.scrollBar:SetValue(self:GetScrollOffset())
             end
         end)
 
@@ -61,8 +67,13 @@ function ReserveListFrameComponent.Create()
     inventory:SetPoint("TOP", 0, -5)
     inventory:SetFontObject(GameFontNormal)
 
+    local currentInventoryListLabel = inventory:CreateFontString(nil, "ARTWORK",
+                                                                 "GameFontNormal")
+    currentInventoryListLabel:SetPoint("TOP", -170, -30)
+    currentInventoryListLabel:SetText("Current Inventory List")
+
     local InvMessageFrame = SIMS.FrameFactory.CreateScrollingMessageFrame(
-                                inventory, -170, -10, 350, 300)
+                                inventory, -170, -20, 350, 300)
     inventory.MessageFrame = InvMessageFrame
     local inventoryCallback = function()
         local parseResults = ParseBags()
@@ -75,17 +86,17 @@ function ReserveListFrameComponent.Create()
         for key, value in ipairs(itemLinks) do
             inventory.MessageFrame:AddMessage(value)
         end
-        local bottomPadding = 25
-        local visualMax = length < bottomPadding and 0 or length - bottomPadding
+        local topPadding = 20
+        local visualMax = length < topPadding and 0 or length - topPadding
         if (visualMax == 0) then
             inventory.MessageFrame.scrollBar:Hide()
         else
             inventory.MessageFrame.scrollBar:Show()
         end
 
-        inventory.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
+        -- inventory.MessageFrame.scrollBar:SetMinMaxValues(0, visualMax)
         inventory.MessageFrame:SetScript("OnMouseWheel", function(self, delta)
-            if (((delta < 0 and self:GetScrollOffset() < length - bottomPadding) or
+            if (((delta < 0 and self:GetScrollOffset() < length - topPadding) or
                 delta > 0)) then
                 self:ScrollByAmount(-delta * 3)
                 -- throws lua error, come back to this
@@ -95,8 +106,8 @@ function ReserveListFrameComponent.Create()
 
     end
 
-    currentResults.MessageFrame:SetScript("OnHyperlinkClick",
-                                          function(self, link, text, button)
+    currentReserveList.MessageFrame:SetScript("OnHyperlinkClick",
+                                              function(self, link, text, button)
         SetItemRef(link, text, button, self)
 
         local tmp = {}
@@ -105,7 +116,7 @@ function ReserveListFrameComponent.Create()
         end
 
         ReserveList = tmp
-        currentResultsCallback()
+        currentReserveListCallback()
         inventoryCallback()
     end)
 
@@ -113,12 +124,22 @@ function ReserveListFrameComponent.Create()
                                      function(self, link, text, button)
         SetItemRef(link, text, button, self)
         table.insert(ReserveList, text)
-        currentResultsCallback()
+        currentReserveListCallback()
         inventoryCallback()
 
     end)
+
+    local backButton = SIMS.FrameFactory.CreateStandardButton(ReserveListFrame,
+                                                              "Back", "BOTTOM",
+                                                              0, 50, "sm")
+
+    backButton:SetScript("OnClick", function(self)
+        f:Hide()
+        SIMS.MainFrameComponent.Show()
+    end)
+
     f:SetScript("OnShow", function()
-        currentResultsCallback()
+        currentReserveListCallback()
         inventoryCallback()
     end)
 
