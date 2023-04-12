@@ -171,7 +171,7 @@ function ConfirmationFrameComponent.Show()
         end
     end
 
-    local filterResults = ParseBags()
+    local filterResults = SIMS.Main.parseBags(true)
     itemLinks = filterResults.filteredItems
     totalSellPrice = filterResults.totalSellPrice
     itemCoords = filterResults.itemCoords

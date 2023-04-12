@@ -76,7 +76,7 @@ function ReserveListFrameComponent.Create()
                                 inventory, -170, -20, 350, 300)
     inventory.MessageFrame = InvMessageFrame
     local inventoryCallback = function()
-        local parseResults = ParseBags()
+        local parseResults = Sims.Main.parseBags(false)
         local itemLinks = parseResults.filteredItems
         local length = 0
         for key, value in ipairs(itemLinks) do length = length + 1 end
