@@ -102,7 +102,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     return 0
 end
 
-function ParseBags()
+function Main.parseBags(isFiltered)
     local filteredItems = {}
     local itemCoords = {}
     local totalSellPrice = 0
@@ -110,10 +110,15 @@ function ParseBags()
         for slot = 1, C_Container.GetContainerNumSlots(currentBag) do
             local itemLink = C_Container.GetContainerItemLink(currentBag, slot)
             if (itemLink) then
-                totalSellPrice = totalSellPrice +
-                                     filter(itemLink, filteredItems, itemCoords,
-                                            currentBag, slot)
+                if isFiltered then
+                    totalSellPrice = totalSellPrice +
+                                         filter(itemLink, filteredItems,
+                                                itemCoords, currentBag, slot)
+                else
+                    table.insert(filteredItems, itemLink)
+                end
             end
+
         end
     end
 
@@ -146,7 +151,7 @@ function Main.initialize()
 end
 
 local function SimsHandler()
-    ParseBags()
+    Main.parseBags(false)
     SIMS.MainFrameComponent.Show()
 end
 
