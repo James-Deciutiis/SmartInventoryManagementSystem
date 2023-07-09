@@ -76,7 +76,6 @@ function FrameFactory.CreateStandardFrame(name, text, size)
 
     f:SetMovable(true)
     f:SetClampedToScreen(true)
-    f:EnableKeyboard(true)
     f.title = f:CreateFontString(nil, "OVERLAY")
     f.title:SetFontObject("GameFontHighlight")
     f.title:SetPoint("CENTER", f.TitleBg, 5, 0)

@@ -76,7 +76,7 @@ function ReserveListFrameComponent.Create()
                                 inventory, -170, -20, 350, 300)
     inventory.MessageFrame = InvMessageFrame
     local inventoryCallback = function()
-        local parseResults = Sims.Main.parseBags(false)
+        local parseResults = SIMS.Main.parseBags(true)
         local itemLinks = parseResults.filteredItems
         local length = 0
         for key, value in ipairs(itemLinks) do length = length + 1 end
@@ -108,8 +108,6 @@ function ReserveListFrameComponent.Create()
 
     currentReserveList.MessageFrame:SetScript("OnHyperlinkClick",
                                               function(self, link, text, button)
-        SetItemRef(link, text, button, self)
-
         local tmp = {}
         for key, value in ipairs(ReserveList) do
             if value ~= text then table.insert(tmp, value) end
@@ -122,11 +120,9 @@ function ReserveListFrameComponent.Create()
 
     inventory.MessageFrame:SetScript("OnHyperlinkClick",
                                      function(self, link, text, button)
-        SetItemRef(link, text, button, self)
         table.insert(ReserveList, text)
         currentReserveListCallback()
         inventoryCallback()
-
     end)
 
     local backButton = SIMS.FrameFactory.CreateStandardButton(ReserveListFrame,

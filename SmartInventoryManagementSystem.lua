@@ -102,7 +102,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     return 0
 end
 
-function Main.parseBags(isFiltered)
+function Main.parseBags(shouldFilter)
     local filteredItems = {}
     local itemCoords = {}
     local totalSellPrice = 0
@@ -110,7 +110,7 @@ function Main.parseBags(isFiltered)
         for slot = 1, C_Container.GetContainerNumSlots(currentBag) do
             local itemLink = C_Container.GetContainerItemLink(currentBag, slot)
             if (itemLink) then
-                if isFiltered then
+                if shouldFilter then
                     totalSellPrice = totalSellPrice +
                                          filter(itemLink, filteredItems,
                                                 itemCoords, currentBag, slot)
