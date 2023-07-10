@@ -9,7 +9,8 @@ local init = false
 SIMS.Main = Main
 
 --- split this function into filter, and sumTotalSellPrice
-function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
+function filter(itemLink, filteredItems, itemCoords, currentBag, slot, flags,
+                dropDownValues, editBoxValues)
     itemName, _, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType, expacID, setID, isCraftingReagent =
         GetItemInfo(itemLink)
 
@@ -24,15 +25,16 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
         if value == itemLink then return 0 end
     end
 
-    if (SIMS.mappings.flags["Item Name"] and isHit and itemName) then
-        if (SIMS.mappings.editBoxValues["Item Name"] and
-            not string.find(itemName:lower(),
-                            SIMS.mappings.editBoxValues["Item Name"]:lower())) then
+    if (not #flags) then return 0 end
+    if (flags["Item Name"] and isHit and itemName) then
+        if (editBoxValues["Item Name"] and
+            not string.find(itemName:lower(), editBoxValues["Item Name"]:lower())) then
             isHit = false
         end
     end
-    if (SIMS.mappings.flags["Item Level"] and isHit) then
-        local ilvl = SIMS.mappings.editBoxValues["Item Level"]
+    if (flags["Item Level"] and isHit and editBoxValues["Item Level"] and
+        string.len(editBoxValues["Item Level"]) > 0) then
+        local ilvl = editBoxValues["Item Level"]
         local operators = {
             ["="] = function() return tonumber(ilvl) == itemLevel end,
             ["<"] = function()
@@ -50,40 +52,37 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
             ["!="] = function() return tonumber(ilvl) ~= itemLevel end
         }
 
-        if (operators[SIMS.mappings.dropDownValues["Item Level"] or "="]() ==
-            false) then isHit = false end
+        if (operators[dropDownValues["Item Level"] or "="]() == false) then
+            isHit = false
+        end
     end
-    if (SIMS.mappings.flags["Equipment"] and isHit) then
+    if (flags["Equipment"] and isHit) then
         if (itemType ~= "Armor" and itemType ~= "Weapon") then
             isHit = false
         end
     end
-    if (SIMS.mappings.flags["Binding Type"] and isHit) then
-        if (SIMS.mappings.dropDownValues["Soulbound"] == "Not Bound" and isBound ~=
-            false) then
+    if (flags["Binding Type"] and isHit) then
+        if (dropDownValues["Soulbound"] == "Not Bound" and isBound ~= false) then
             isHit = false
-        elseif (SIMS.mappings.dropDownValues["Soulbound"] == "Soulbound" and
-            isBound ~= true) then
+        elseif (dropDownValues["Soulbound"] == "Soulbound" and isBound ~= true) then
             isHit = false
         end
     end
-    if (SIMS.mappings.flags["Expansion"] and isHit) then
-        if (SIMS.mappings.expansionValueMapping[SIMS.mappings.dropDownValues["Expansion"]] ~=
+    if (flags["Expansion"] and isHit) then
+        if (SIMS.mappings.expansionValueMapping[dropDownValues["Expansion"]] ~=
             expacID) then isHit = false end
     end
-    if (SIMS.mappings.flags["Quality"] and isHit) then
-        if (SIMS.mappings.qualityValueMapping[SIMS.mappings.dropDownValues["Quality"]] ~=
+    if (flags["Quality"] and isHit) then
+        if (SIMS.mappings.qualityValueMapping[dropDownValues["Quality"]] ~=
             itemQuality) then isHit = false end
     end
-    if (SIMS.mappings.flags["Item Location"] and isHit) then
-        if (SIMS.mappings.dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
+    if (flags["Item Location"] and isHit) then
+        if (dropDownValues["Item Location"] ~= _G[itemEquipLoc]) then
             isHit = false
         end
     end
-    if (SIMS.mappings.flags["Item Type"] and isHit) then
-        if (SIMS.mappings.dropDownValues["Item Type"] ~= itemType) then
-            isHit = false
-        end
+    if (flags["Item Type"] and isHit) then
+        if (dropDownValues["Item Type"] ~= itemType) then isHit = false end
     end
     if (isHit) then
         local coords = {}
@@ -102,7 +101,7 @@ function filter(itemLink, filteredItems, itemCoords, currentBag, slot)
     return 0
 end
 
-function Main.parseBags(shouldFilter)
+function Main.parseBags(shouldFilter, flags, dropDownValues, editBoxValues)
     local filteredItems = {}
     local itemCoords = {}
     local totalSellPrice = 0
@@ -113,7 +112,9 @@ function Main.parseBags(shouldFilter)
                 if shouldFilter then
                     totalSellPrice = totalSellPrice +
                                          filter(itemLink, filteredItems,
-                                                itemCoords, currentBag, slot)
+                                                itemCoords, currentBag, slot,
+                                                flags, dropDownValues,
+                                                editBoxValues)
                 else
                     table.insert(filteredItems, itemLink)
                 end

@@ -95,7 +95,9 @@ function CreateFunctionFrameComponent.Create()
     currentResults.TotalFrame = total
 
     local currentResultsCallback = function()
-        local parseResults = SIMS.Main.parseBags(true)
+        local parseResults = SIMS.Main.parseBags(true, SIMS.mappings.flags,
+                                                 SIMS.mappings.dropDownValues,
+                                                 SIMS.mappings.editBoxValues)
         local itemLinks = parseResults.filteredItems
         local totalSellPrice = parseResults.totalSellPrice
         local length = 0

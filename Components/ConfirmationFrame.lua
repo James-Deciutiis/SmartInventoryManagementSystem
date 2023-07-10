@@ -48,7 +48,7 @@ function ConfirmDeleteFrame_Show(coords, totalSellPrice)
 
     ConfirmDeleteFrame.TotalFrame:Clear()
     ConfirmDeleteFrame.TotalFrame:AddMessage(
-        "Warning, this action will PERMANENTLY destory")
+        "Warning, this action will PERMANENTLY destroy ")
     ConfirmDeleteFrame.TotalFrame:AddMessage(
         GetCoinTextureString(totalSellPrice))
     ConfirmDeleteFrame.TotalFrame:AddMessage("worth of items, please confirm")
@@ -155,23 +155,26 @@ function ConfirmationFrameComponent.Show()
     local currentFunction =
         SavedFunctions[SIMS.mappings.dropDownValues["Saved Functions"]]
 
+    local flags = {}
+    local dropDownValues = {}
+    local editBoxValues = {}
+
     if (currentFunction) then
         local currentFlags = currentFunction.flags
         local currentDropDownValues = currentFunction.dropDownValues
         local currentEditBoxValues = currentFunction.editBoxValues
 
-        for key, val in pairs(currentFlags) do
-            SIMS.mappings.flags[key] = val
-        end
+        for key, val in pairs(currentFlags) do flags[key] = val end
         for key, val in pairs(currentDropDownValues) do
-            SIMS.mappings.dropDownValues[key] = val
+            dropDownValues[key] = val
         end
         for key, val in pairs(currentEditBoxValues) do
-            SIMS.mappings.editBoxValues[key] = val
+            editBoxValues[key] = val
         end
     end
 
-    local filterResults = SIMS.Main.parseBags(true)
+    local filterResults = SIMS.Main.parseBags(true, flags, dropDownValues,
+                                              editBoxValues)
     itemLinks = filterResults.filteredItems
     totalSellPrice = filterResults.totalSellPrice
     itemCoords = filterResults.itemCoords
